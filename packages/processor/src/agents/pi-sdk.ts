@@ -325,27 +325,23 @@ function getGatewayCredential(): string | undefined {
 }
 
 async function configureRuntimeAuth(runtime: ModelRuntime, cfg: PiAgentConfig): Promise<void> {
-  // allowNetwork: false on every call. setRuntimeApiKey's refresh
-  // otherwise inherits the runtime's network default and performs a full
-  // remote model-catalog sweep (one fetch per builtin provider against
-  // catalog.earendil.works, no timeout) — observed hanging batch startup
-  // for many minutes. Deepsec only needs the static builtin catalogs and
-  // the user's models.json.
-  const offline = { allowNetwork: false } as const;
+  // Runtime API keys are in-memory overrides (RuntimeCredentials) and are
+  // never persisted. pi 0.85 removed the per-call network option from
+  // setRuntimeApiKey, so env keys are layered on without any refresh here.
 
   const gatewayKey = getGatewayCredential();
-  if (gatewayKey) await runtime.setRuntimeApiKey(GATEWAY_PROVIDER, gatewayKey, offline);
+  if (gatewayKey) await runtime.setRuntimeApiKey(GATEWAY_PROVIDER, gatewayKey);
 
   const anthropicKey = process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN;
-  if (anthropicKey) await runtime.setRuntimeApiKey("anthropic", anthropicKey, offline);
+  if (anthropicKey) await runtime.setRuntimeApiKey("anthropic", anthropicKey);
 
   const openaiKey = process.env.OPENAI_API_KEY;
-  if (openaiKey) await runtime.setRuntimeApiKey("openai", openaiKey, offline);
+  if (openaiKey) await runtime.setRuntimeApiKey("openai", openaiKey);
 
   const customProvider = cfg.aiProvider ?? modelProviderFromName(cfg.model);
   if (customProvider && cfg.aiApiKeyEnv) {
     const key = process.env[cfg.aiApiKeyEnv];
-    if (key) await runtime.setRuntimeApiKey(customProvider, key, offline);
+    if (key) await runtime.setRuntimeApiKey(customProvider, key);
   }
 }
 
@@ -519,22 +515,38 @@ export async function resolvePiModelWithDynamicGateway(
   }
 }
 
+export const PI_MODEL_REFRESH_TIMEOUT_MS = 15_000;
+
+/**
+ * Create-time model-catalog refresh policy. Online by default so providers
+ * expose models newer than pi's static builtin list (opencode-go's
+ * deepseek-v4.1-flash, for example); setting `PI_OFFLINE` forces offline. The
+ * refresh is bounded via `modelRefreshTimeoutMs` so a slow catalog never
+ * stalls startup; on failure pi keeps the static catalog plus its
+ * models-store.json cache.
+ *
+ * Exported for tests.
+ */
+export function piCatalogRefreshOptions(env: NodeJS.ProcessEnv = process.env): {
+  allowModelNetwork: boolean;
+  modelRefreshTimeoutMs: number;
+} {
+  return {
+    allowModelNetwork: env.PI_OFFLINE === undefined,
+    modelRefreshTimeoutMs: PI_MODEL_REFRESH_TIMEOUT_MS,
+  };
+}
+
 async function createPiSession(projectRoot: string, cfg: PiAgentConfig): Promise<PiSessionSetup> {
   const agentDir = getAgentDir();
-  // Pin pi offline for remote model-catalog purposes (set-and-leave: pi
-  // sessions run concurrently in this process, so restoring the var
-  // would race). The runtime reads PI_OFFLINE at create time; without
-  // it, internal refreshes may fetch per-provider catalogs from
-  // catalog.earendil.works with no timeout. Static builtin catalogs and
-  // models.json keep working; only the network refresh is disabled.
-  process.env.PI_OFFLINE ??= "1";
-  // ModelRuntime is pi ≥0.81's canonical model/auth container (it
-  // replaced the AuthStorage + ModelRegistry.create pair). Uses the
-  // user's auth.json / models.json when present; runtime API keys from
-  // env are layered on top without being persisted.
+  // ModelRuntime is pi ≥0.81's canonical model/auth container (it replaced
+  // the AuthStorage + ModelRegistry.create pair). Uses the user's auth.json /
+  // models.json when present; runtime API keys from env are layered on top
+  // without being persisted.
   const runtime = await ModelRuntime.create({
     authPath: path.join(agentDir, "auth.json"),
     modelsPath: path.join(agentDir, "models.json"),
+    ...piCatalogRefreshOptions(),
   });
   await configureRuntimeAuth(runtime, cfg);
 
