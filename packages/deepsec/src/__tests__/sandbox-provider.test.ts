@@ -11,6 +11,12 @@ describe("createSandboxProvider", () => {
     expect((await createSandboxProvider()).kind).toBe("vercel");
   });
 
+  it("rejects an unsupported provider instead of defaulting to Vercel", async () => {
+    await expect(createSandboxProvider("locl" as never)).rejects.toThrow(
+      /Unsupported sandbox provider/,
+    );
+  });
+
   it("runs commands and moves files through the local reference provider", async () => {
     const provider = await createSandboxProvider("local");
     const sandbox = await provider.create({});
@@ -35,10 +41,12 @@ describe("createSandboxProvider", () => {
     await sandbox.stop();
   });
 
-  it("rejects unsupported local-provider operations", async () => {
+  it("snapshots and rejects operations the local provider cannot support", async () => {
     const provider = await createSandboxProvider("local");
     const sandbox = await provider.create({});
-    await expect(sandbox.snapshot()).rejects.toThrow(/snapshots/);
+    await expect(sandbox.snapshot()).resolves.toMatchObject({
+      snapshotId: expect.any(String),
+    });
     await expect(provider.get("nope")).rejects.toThrow(/reattach/);
     await sandbox.stop();
   });

@@ -103,7 +103,7 @@ export async function sandboxAllCommand(
       : undefined;
 
   // Same preflight as sandbox-process — fail fast before fanning out.
-  assertSandboxCredential();
+  if ((opts.sandboxProvider ?? "vercel") === "vercel") assertSandboxCredential();
   assertAgentCredential(agentType, {
     inSandbox: true,
     aiApiKeyEnv: explicitAiApiKeyEnv,

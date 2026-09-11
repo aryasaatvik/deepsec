@@ -77,6 +77,9 @@ export async function createSandboxProvider(
     const { localSandboxProvider } = await import("./providers/local.js");
     return localSandboxProvider;
   }
-  const { vercelSandboxProvider } = await import("./providers/vercel.js");
-  return vercelSandboxProvider;
+  if (kind === "vercel") {
+    const { vercelSandboxProvider } = await import("./providers/vercel.js");
+    return vercelSandboxProvider;
+  }
+  throw new Error(`Unsupported sandbox provider: ${String(kind)}`);
 }

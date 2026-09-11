@@ -113,7 +113,11 @@ class LocalSandboxHandle implements SandboxHandle {
     });
     this.children.add(child);
     child.on("exit", () => this.children.delete(child));
-    return new LocalCommand(child);
+    const command = new LocalCommand(child);
+    // Match Vercel's non-detached runCommand, which resolves after the process
+    // exits; callers inspect exitCode immediately on the resolved command.
+    await command.wait();
+    return command;
   }
 
   async getCommand(): Promise<SandboxCommand> {
@@ -141,7 +145,9 @@ class LocalSandboxHandle implements SandboxHandle {
   }
 
   async snapshot(): Promise<{ snapshotId: string }> {
-    throw new Error("The local sandbox provider does not support snapshots");
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "deepsec-local-snapshot-"));
+    fs.cpSync(this.root, dir, { recursive: true });
+    return { snapshotId: dir };
   }
 
   async stop(): Promise<void> {
@@ -152,8 +158,11 @@ class LocalSandboxHandle implements SandboxHandle {
 
 export const localSandboxProvider: SandboxProvider = {
   kind: "local",
-  async create(_options: SandboxCreateOptions): Promise<SandboxHandle> {
+  async create(options: SandboxCreateOptions): Promise<SandboxHandle> {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), "deepsec-local-sandbox-"));
+    if (options.source?.type === "snapshot") {
+      fs.cpSync(options.source.snapshotId, root, { recursive: true });
+    }
     return new LocalSandboxHandle(root);
   },
   async get(): Promise<SandboxHandle> {

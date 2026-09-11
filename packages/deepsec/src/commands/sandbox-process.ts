@@ -163,7 +163,7 @@ export async function sandboxCommand(subcommand: string, opts: SandboxOpts) {
   // on a doomed bootstrap sandbox. The credential brokering path needs
   // both a Vercel auth token (to create the sandbox) and an AI token (to
   // inject into the firewall transform).
-  assertSandboxCredential();
+  if ((opts.sandboxProvider ?? "vercel") === "vercel") assertSandboxCredential();
   assertAgentCredential(config.agentType, {
     inSandbox: true,
     aiApiKeyEnv: config.aiApiKeyEnv,

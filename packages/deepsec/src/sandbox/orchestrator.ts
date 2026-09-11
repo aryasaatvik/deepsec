@@ -465,6 +465,7 @@ export async function launch(config: SandboxConfig, onLog: (msg: string) => void
     runId,
     projectId: config.projectId,
     command: config.command,
+    provider: config.provider ?? "vercel",
     vcpus: config.vcpus,
     launchedAt: new Date().toISOString(),
     sandboxes: sandboxEntries,
@@ -509,7 +510,9 @@ export async function checkStatus(
 
   for (const entry of state.sandboxes) {
     try {
-      const sandbox = await (await createSandboxProvider()).get(entry.sandboxId);
+      const sandbox = await (await createSandboxProvider(state.provider ?? "vercel")).get(
+        entry.sandboxId,
+      );
       const cmd = await sandbox.getCommand(entry.cmdId);
 
       if (cmd.exitCode === null) {
@@ -543,7 +546,9 @@ export async function collect(
 
   const resultPromises = state.sandboxes.map(async (entry): Promise<SandboxResult> => {
     try {
-      const sandbox = await (await createSandboxProvider()).get(entry.sandboxId);
+      const sandbox = await (await createSandboxProvider(state.provider ?? "vercel")).get(
+        entry.sandboxId,
+      );
       const cmd = await sandbox.getCommand(entry.cmdId);
 
       if (cmd.exitCode === null) {

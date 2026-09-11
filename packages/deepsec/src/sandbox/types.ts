@@ -85,6 +85,8 @@ export interface SandboxRunState {
   runId: string;
   projectId: string;
   command: SandboxSubcommand;
+  /** Provider selected when the run was launched (defaults to Vercel). */
+  provider?: SandboxProviderKind;
   vcpus: number;
   launchedAt: string;
   sandboxes: {
