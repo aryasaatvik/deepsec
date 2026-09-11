@@ -1,0 +1,51 @@
+name: Publish
+
+on:
+  push:
+    branches: [dev]
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  id-token: write
+  pull-requests: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      # pnpm version comes from `packageManager` in the root package.json.
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - run: pnpm install --frozen-lockfile
+
+      # `tegami ci` versions pending `.tegami/*.md` entries (opening a
+      # tegami/version-packages PR) or publishes the version PR's lock through
+      # npm trusted publishing (OIDC — no NPM_TOKEN).
+      - run: pnpm run release:check && pnpm run tegami ci
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      # Version PRs are authored with GITHUB_TOKEN, which does not trigger
+      # `pull_request` workflows. Dispatch CI for the version branch so the PR
+      # receives checks before it can be merged.
+      - name: Trigger CI on a version PR
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git ls-remote --exit-code --heads origin tegami/version-packages >/dev/null 2>&1; then
+            gh workflow run ci.yml --ref tegami/version-packages
+          fi
