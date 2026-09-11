@@ -109,8 +109,8 @@ Three agent backends are supported:
 
 | `--agent` | SDK | Default model |
 |---|---|---|
-| `pi` (default) | `@earendil-works/pi-coding-agent` | `opencode-go/deepseek-v4.1-flash` |
-| `codex` | `@openai/codex-sdk` | `gpt-5.5` |
+| `codex` (default) | `@openai/codex-sdk` | `daybreak-blue-latest` |
+| `pi` | `@earendil-works/pi-coding-agent` | `opencode-go/deepseek-v4.1-flash` |
 | `claude` | `@anthropic-ai/claude-agent-sdk` | `claude-opus-4-8` |
 
 Same prompt, same JSON output schema. You can mix backends within a

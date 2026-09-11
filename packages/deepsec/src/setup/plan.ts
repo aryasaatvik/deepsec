@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { ModelProfile } from "../auth/model-picker.js";
 import { resolveModelProfile } from "../auth/model-picker.js";
-import { type ModelRoute, OPENCODE_GO_ROUTE } from "../auth/model-route.js";
+import { CODEX_LOCAL_ROUTE, type ModelRoute } from "../auth/model-route.js";
 import {
   type RunVercelCli,
   readWorkspaceLink,
@@ -114,7 +114,7 @@ export async function buildSetupPlan(options: {
     const profile = options.modelProfile ?? "best";
     const selected = await resolveModelProfile({
       profile,
-      route: options.modelRoute ?? { ...OPENCODE_GO_ROUTE },
+      route: options.modelRoute ?? { ...CODEX_LOCAL_ROUTE },
       agent: options.agent,
     });
     model = {

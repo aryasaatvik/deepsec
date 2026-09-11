@@ -1,7 +1,7 @@
 import path from "node:path";
 import { findProject, getConfig, getConfigPath } from "@deepsec/core";
 import { type ModelProfile, parseModelProfile, resolveModelProfile } from "../auth/model-picker.js";
-import { type ModelRoute, OPENCODE_GO_ROUTE } from "../auth/model-route.js";
+import { CODEX_LOCAL_ROUTE, type ModelRoute } from "../auth/model-route.js";
 import { resolveProjectId } from "../resolve-project-id.js";
 import { runSetupWorkflow, type SetupThrough } from "../setup/coordinator.js";
 import type { SupportedPackageManager } from "../setup/install.js";
@@ -105,7 +105,7 @@ export async function setupCommand(options: SetupCommandOptions): Promise<void> 
   if (!model && (profile || (headless && options.yes && !getConfig()?.defaultModel))) {
     const choice = await resolveModelProfile({
       profile: profile ?? "best",
-      route: route ?? { ...OPENCODE_GO_ROUTE },
+      route: route ?? { ...CODEX_LOCAL_ROUTE },
       agent,
     });
     agent = choice.agent;

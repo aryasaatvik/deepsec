@@ -92,10 +92,10 @@ const LABELS: Record<string, string> = {
 
 const PREFERRED_MODELS = [
   "openai/gpt-5.6-sol",
-  "anthropic/claude-opus-5",
   "moonshotai/kimi-k3",
   "xai/grok-4.5",
   "deepseek/deepseek-v4-flash",
+  "anthropic/claude-opus-5",
 ] as const;
 
 function isBenchmarkResult(value: unknown): value is BenchmarkResult {
@@ -148,18 +148,27 @@ export function buildRecommendedModelChoices(
   results: BenchmarkResult[],
   route?: ModelRoute,
 ): RecommendedModelChoice[] {
-  const selected = PREFERRED_MODELS.map(
-    (modelId) => strongest(results, modelId) ?? strongest(FALLBACK_RESULTS, modelId),
-  ).filter((result): result is BenchmarkResult => result !== undefined);
-  const cheapest = Math.min(...selected.map((result) => result.cost));
-  return selected.map((result) => ({
-    ...result,
-    label: LABELS[result.modelId] ?? result.model,
-    agent: result.harness,
-    configuredModel: scopedModelId(route, result),
-    thinkingLevel: thinkingLevel(result.reasoning),
-    relativePrice: result.cost / cheapest,
-  }));
+  const cheapest = Math.min(
+    ...PREFERRED_MODELS.map(
+      (modelId) => (strongest(results, modelId) ?? strongest(FALLBACK_RESULTS, modelId))?.cost ?? 0,
+    ),
+  );
+  return PREFERRED_MODELS.flatMap((modelId) => {
+    const result = strongest(results, modelId) ?? strongest(FALLBACK_RESULTS, modelId);
+    if (!result) return [];
+    const choice = routeChoice(route, result);
+    if (!choice) return [];
+    return [
+      {
+        ...result,
+        label: LABELS[result.modelId] ?? result.model,
+        agent: choice.agent,
+        configuredModel: choice.configuredModel,
+        thinkingLevel: thinkingLevel(result.reasoning),
+        relativePrice: result.cost / cheapest,
+      },
+    ];
+  });
 }
 
 function canonicalHarness(value: string | undefined): ModelHarness | undefined {
@@ -171,29 +180,34 @@ function canonicalHarness(value: string | undefined): ModelHarness | undefined {
 function compatibleHarness(route: ModelRoute, requested?: string): ModelHarness | undefined {
   if (route.mode === "direct") return route.provider === "anthropic" ? "claude" : "codex";
   if (route.mode === "custom") return "pi";
-  if (route.mode === "local" && route.provider === "openai-codex") return "codex";
+  // The OpenAI Codex subscription preset runs on Pi, which owns the
+  // openai-codex provider and loads its login from the pi auth store.
+  if (route.mode === "local" && route.provider === "openai-codex") return "pi";
   return canonicalHarness(requested);
 }
 
 /**
- * Scope a benchmark recommendation to the selected provider. Custom routes
- * (OpenCode Go) only host models under their own provider prefix, and the
- * OpenAI Codex subscription only serves openai-codex models, so a raw
- * cross-provider benchmark slug would not resolve with the configured key.
+ * Map a benchmark result onto the selected route. Custom routes only host
+ * models under their own provider prefix; the OpenAI Codex subscription runs
+ * on Pi and only serves openai-codex models. Returns undefined when the route
+ * cannot run a given benchmark model.
  */
-function scopedModelId(route: ModelRoute | undefined, result: BenchmarkResult): string {
-  if (route && route.mode === "custom" && result.harness === "pi") {
-    return `${route.provider}/${result.modelId.split("/").pop()}`;
+function routeChoice(
+  route: ModelRoute | undefined,
+  result: BenchmarkResult,
+): { agent: ModelHarness; configuredModel: string } | undefined {
+  const basename = result.modelId.split("/").pop() ?? result.modelId;
+  if (route?.mode === "custom") {
+    return result.harness === "pi"
+      ? { agent: "pi", configuredModel: `${route.provider}/${basename}` }
+      : undefined;
   }
-  if (
-    route &&
-    route.mode === "local" &&
-    route.provider === "openai-codex" &&
-    result.harness === "codex"
-  ) {
-    return `${route.provider}/${result.modelId.split("/").pop()}`;
+  if (route?.mode === "local" && route.provider === "openai-codex") {
+    return result.harness === "codex"
+      ? { agent: "pi", configuredModel: `openai-codex/${basename}` }
+      : undefined;
   }
-  return configuredModel(result);
+  return { agent: result.harness, configuredModel: configuredModel(result) };
 }
 
 export function parseModelProfile(value: string | undefined): ModelProfile | undefined {

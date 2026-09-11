@@ -6,7 +6,7 @@ describe("defaultModelForAgent", () => {
   afterEach(() => setLoadedConfig(defineConfig({ projects: [] })));
 
   it("returns the backend-specific default models", () => {
-    expect(defaultModelForAgent("codex")).toBe("gpt-5.5");
+    expect(defaultModelForAgent("codex")).toBe("daybreak-blue-latest");
     expect(defaultModelForAgent("pi")).toBe("opencode-go/deepseek-v4.1-flash");
     expect(defaultModelForAgent("claude-agent-sdk")).toBe("claude-opus-4-8");
   });
@@ -16,6 +16,6 @@ describe("defaultModelForAgent", () => {
       defineConfig({ projects: [], defaultAgent: "pi", defaultModel: "xai/grok-4.5" }),
     );
     expect(defaultModelForAgent("pi")).toBe("xai/grok-4.5");
-    expect(defaultModelForAgent("codex")).toBe("gpt-5.5");
+    expect(defaultModelForAgent("codex")).toBe("daybreak-blue-latest");
   });
 });

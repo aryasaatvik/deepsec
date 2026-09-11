@@ -11,7 +11,7 @@ export function defaultModelForAgent(agentType: string): string {
   if (config?.defaultModel && configuredAgent === agentType) return config.defaultModel;
   switch (agentType) {
     case "codex":
-      return "gpt-5.5";
+      return "daybreak-blue-latest";
     case "pi":
       return "opencode-go/deepseek-v4.1-flash";
     default:

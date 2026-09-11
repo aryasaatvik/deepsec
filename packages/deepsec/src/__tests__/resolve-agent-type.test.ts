@@ -30,8 +30,8 @@ describe("resolveAgentType", () => {
     expect(resolveAgentType(undefined)).toBe("codex");
   });
 
-  it("falls back to pi when neither is set", () => {
+  it("falls back to codex when neither is set", () => {
     setLoadedConfig(defineConfig({ projects: [] }));
-    expect(resolveAgentType(undefined)).toBe("pi");
+    expect(resolveAgentType(undefined)).toBe("codex");
   });
 });

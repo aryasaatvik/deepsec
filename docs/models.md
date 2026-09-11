@@ -7,8 +7,8 @@ deepsec talks to LLMs through interchangeable agent backends:
 
 | Backend                     | Default model                      | Used by                      |
 |-----------------------------|------------------------------------|------------------------------|
-| `pi` (default)              | `opencode-go/deepseek-v4.1-flash`  | `process`, `revalidate`      |
-| `codex`                     | `gpt-5.5`                          | `process`, `revalidate`      |
+| `codex` (default)           | `daybreak-blue-latest`             | `process`, `revalidate`      |
+| `pi`                        | `opencode-go/deepseek-v4.1-flash`  | `process`, `revalidate`      |
 | `claude`                    | `claude-opus-4-8`                  | `process`, `revalidate`      |
 | `claude` (triage)           | `claude-sonnet-4-6`                | `triage` (Claude-only)       |
 
@@ -139,7 +139,7 @@ and cost for that loop. `gpt-5.5-pro` is the most careful Codex
 option at significantly higher cost; `gpt-5.4` and below are fine for
 follow-up reinvestigation passes.
 
-### Pi (default)
+### Pi for alternate harness runs
 
 Pi uses `@earendil-works/pi-coding-agent` with read-only tools
 (`read`, `grep`, `find`, `ls`) and the same deepsec prompt/schema as the
