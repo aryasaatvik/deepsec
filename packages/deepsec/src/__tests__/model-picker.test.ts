@@ -7,7 +7,7 @@ import {
   inferModelHarness,
   resolveModelProfile,
 } from "../auth/model-picker.js";
-import { OPENAI_CODEX_ROUTE, OPENCODE_GO_ROUTE } from "../auth/model-route.js";
+import { CODEX_LOCAL_ROUTE, OPENAI_CODEX_ROUTE, OPENCODE_GO_ROUTE } from "../auth/model-route.js";
 
 const results: BenchmarkResult[] = [
   {
@@ -174,5 +174,8 @@ describe("DeepSecBench model picker", () => {
     await expect(
       resolveModelProfile({ profile: "best", route: OPENAI_CODEX_ROUTE, fetchImpl }),
     ).resolves.toMatchObject({ agent: "pi", model: "openai-codex/gpt-5.6-sol" });
+    await expect(
+      resolveModelProfile({ profile: "budget", route: CODEX_LOCAL_ROUTE, fetchImpl }),
+    ).resolves.toMatchObject({ agent: "codex", model: "gpt-5.6-sol" });
   });
 });

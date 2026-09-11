@@ -180,9 +180,14 @@ function canonicalHarness(value: string | undefined): ModelHarness | undefined {
 function compatibleHarness(route: ModelRoute, requested?: string): ModelHarness | undefined {
   if (route.mode === "direct") return route.provider === "anthropic" ? "claude" : "codex";
   if (route.mode === "custom") return "pi";
-  // The OpenAI Codex subscription preset runs on Pi, which owns the
-  // openai-codex provider and loads its login from the pi auth store.
-  if (route.mode === "local" && route.provider === "openai-codex") return "pi";
+  if (route.mode === "local") {
+    // A pinned subscription provider constrains the harness; the generic
+    // "local" route can use any machine-wide login.
+    if (route.provider === "openai-codex") return "pi";
+    if (route.provider === "codex") return "codex";
+    if (route.provider === "claude") return "claude";
+    return canonicalHarness(requested);
+  }
   return canonicalHarness(requested);
 }
 
