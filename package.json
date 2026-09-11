@@ -14,7 +14,7 @@
     "url": "git+https://github.com/aryasaatvik/deepsec.git"
   },
   "scripts": {
-    "build": "pnpm -r --filter '!website' build",
+    "build": "pnpm -r build",
     "bundle": "pnpm --filter @aryasaatvik/deepsec bundle",
     "deepsec": "tsx packages/deepsec/src/cli.ts",
     "test": "vitest run",
@@ -27,7 +27,7 @@
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
     "knip": "knip",
-    "validate": "pnpm -r --filter '!website' build && pnpm lint && pnpm knip && pnpm bundle && pnpm typecheck:deepsec && pnpm test"
+    "validate": "pnpm -r build && pnpm lint && pnpm knip && pnpm bundle && pnpm typecheck:deepsec && pnpm test"
   },
   "keywords": [
     "security",
