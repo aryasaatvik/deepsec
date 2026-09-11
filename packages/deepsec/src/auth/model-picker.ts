@@ -144,7 +144,10 @@ function thinkingLevel(reasoning: string): string | undefined {
   return reasoning === "max" ? "xhigh" : reasoning;
 }
 
-export function buildRecommendedModelChoices(results: BenchmarkResult[]): RecommendedModelChoice[] {
+export function buildRecommendedModelChoices(
+  results: BenchmarkResult[],
+  route?: ModelRoute,
+): RecommendedModelChoice[] {
   const selected = PREFERRED_MODELS.map(
     (modelId) => strongest(results, modelId) ?? strongest(FALLBACK_RESULTS, modelId),
   ).filter((result): result is BenchmarkResult => result !== undefined);
@@ -153,7 +156,7 @@ export function buildRecommendedModelChoices(results: BenchmarkResult[]): Recomm
     ...result,
     label: LABELS[result.modelId] ?? result.model,
     agent: result.harness,
-    configuredModel: configuredModel(result),
+    configuredModel: scopedModelId(route, result),
     thinkingLevel: thinkingLevel(result.reasoning),
     relativePrice: result.cost / cheapest,
   }));
@@ -168,7 +171,29 @@ function canonicalHarness(value: string | undefined): ModelHarness | undefined {
 function compatibleHarness(route: ModelRoute, requested?: string): ModelHarness | undefined {
   if (route.mode === "direct") return route.provider === "anthropic" ? "claude" : "codex";
   if (route.mode === "custom") return "pi";
+  if (route.mode === "local" && route.provider === "openai-codex") return "codex";
   return canonicalHarness(requested);
+}
+
+/**
+ * Scope a benchmark recommendation to the selected provider. Custom routes
+ * (OpenCode Go) only host models under their own provider prefix, and the
+ * OpenAI Codex subscription only serves openai-codex models, so a raw
+ * cross-provider benchmark slug would not resolve with the configured key.
+ */
+function scopedModelId(route: ModelRoute | undefined, result: BenchmarkResult): string {
+  if (route && route.mode === "custom" && result.harness === "pi") {
+    return `${route.provider}/${result.modelId.split("/").pop()}`;
+  }
+  if (
+    route &&
+    route.mode === "local" &&
+    route.provider === "openai-codex" &&
+    result.harness === "codex"
+  ) {
+    return `${route.provider}/${result.modelId.split("/").pop()}`;
+  }
+  return configuredModel(result);
 }
 
 export function parseModelProfile(value: string | undefined): ModelProfile | undefined {
@@ -197,7 +222,7 @@ export async function resolveModelProfile(options: {
 > {
   const benchmark = await fetchBenchmarkResults(options.fetchImpl);
   const requiredHarness = compatibleHarness(options.route, options.agent);
-  const choices = buildRecommendedModelChoices(benchmark.results).filter(
+  const choices = buildRecommendedModelChoices(benchmark.results, options.route).filter(
     (choice) => !requiredHarness || choice.agent === requiredHarness,
   );
   const byScore = [...choices].sort((left, right) => right.score - left.score);
@@ -260,7 +285,7 @@ export async function promptForModelSelection(options: {
   console.log(`  ${DIM}Loading current DeepSecBench recommendations…${RESET}`);
   const benchmark = await fetchBenchmarkResults(options.fetchImpl);
   const requiredHarness = compatibleHarness(options.route, options.agent);
-  const recommendations = buildRecommendedModelChoices(benchmark.results);
+  const recommendations = buildRecommendedModelChoices(benchmark.results, options.route);
   const choices = recommendations.filter(
     (choice) => !requiredHarness || choice.agent === requiredHarness,
   );

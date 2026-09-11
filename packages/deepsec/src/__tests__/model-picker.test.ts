@@ -7,6 +7,7 @@ import {
   inferModelHarness,
   resolveModelProfile,
 } from "../auth/model-picker.js";
+import { OPENAI_CODEX_ROUTE, OPENCODE_GO_ROUTE } from "../auth/model-route.js";
 
 const results: BenchmarkResult[] = [
   {
@@ -154,5 +155,21 @@ describe("DeepSecBench model picker", () => {
         fetchImpl,
       }),
     ).resolves.toMatchObject({ agent: "claude", model: "claude-opus-5" });
+  });
+
+  it("scopes recommendations to the selected provider", async () => {
+    const fetchImpl = vi.fn(async () => {
+      throw new Error("offline");
+    }) as unknown as typeof fetch;
+
+    await expect(
+      resolveModelProfile({ profile: "best", route: OPENCODE_GO_ROUTE, fetchImpl }),
+    ).resolves.toMatchObject({ agent: "pi", model: "opencode-go/kimi-k3" });
+    await expect(
+      resolveModelProfile({ profile: "budget", route: OPENCODE_GO_ROUTE, fetchImpl }),
+    ).resolves.toMatchObject({ agent: "pi", model: "opencode-go/deepseek-v4-flash" });
+    await expect(
+      resolveModelProfile({ profile: "best", route: OPENAI_CODEX_ROUTE, fetchImpl }),
+    ).resolves.toMatchObject({ agent: "codex", model: "openai-codex/gpt-5.6-sol" });
   });
 });

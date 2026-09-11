@@ -272,7 +272,7 @@ export async function initCommand(opts: InitOpts) {
     // setup was interrupted before login; the prompt above is first-run only.
     const linkRoute = modelRoute ?? persistedModelRoute(workspaceDir, registered.id);
     if (
-      linkRoute?.mode !== "local" &&
+      linkRoute?.mode === "gateway" &&
       !headless &&
       process.stdin.isTTY &&
       process.stdout.isTTY &&
