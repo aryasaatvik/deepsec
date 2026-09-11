@@ -26,7 +26,7 @@ Steady-state stages remain separate CLI subcommands and use the same on-disk
 representation.
 
 Install and auth have two levels of idempotency. Setup state avoids expensive
-work, while cheap probes still confirm `node_modules/deepsec` exists and
+work, while cheap probes still confirm `node_modules/@aryasaatvik/deepsec` exists and
 rehydrate the configured model credential. The auth layer independently
 short-circuits fresh model and Sandbox probes when the exact project link,
 route, and agent set are unchanged.
@@ -155,7 +155,7 @@ or downstream consumption.
 ## Plugin architecture
 
 Five extension points, all defined in
-[`packages/core/src/plugin.ts`](https://github.com/vercel-labs/deepsec/blob/main/packages/core/src/plugin.ts):
+[`packages/core/src/plugin.ts`](https://github.com/aryasaatvik/deepsec/blob/main/packages/core/src/plugin.ts):
 
 - `matchers` — additive
 - `notifiers` — additive

@@ -282,7 +282,7 @@ function installFingerprint(workspaceDir: string): string {
   const manifest = fs.readFileSync(path.join(workspaceDir, "package.json"), "utf8");
   let localArtifacts: string | undefined;
   try {
-    const dependency = JSON.parse(manifest).dependencies?.deepsec;
+    const dependency = JSON.parse(manifest).dependencies?.["@aryasaatvik/deepsec"];
     if (typeof dependency === "string" && dependency.startsWith("file:")) {
       const packageRoot = fileURLToPath(dependency);
       localArtifacts = digest(
@@ -408,7 +408,7 @@ export async function runSetupWorkflow(
     let installResult: Awaited<ReturnType<typeof ensureWorkspaceInstall>>;
     if (
       !isCheckpointCurrent(state, "install", installInput, () =>
-        fs.existsSync("node_modules/deepsec"),
+        fs.existsSync("node_modules/@aryasaatvik/deepsec"),
       )
     ) {
       installResult = await runPhase(state, reporter, "install", installInput, () =>

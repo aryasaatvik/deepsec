@@ -1,5 +1,5 @@
-import type { CandidateMatch, MatcherPlugin } from "deepsec/config";
-import { regexMatcher } from "deepsec/config";
+import type { CandidateMatch, MatcherPlugin } from "@aryasaatvik/deepsec/config";
+import { regexMatcher } from "@aryasaatvik/deepsec/config";
 
 /**
  * Debug surfaces gated only by an env-var flag. The webapp uses

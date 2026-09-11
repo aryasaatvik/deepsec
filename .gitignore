@@ -13,3 +13,4 @@ linear-*
 plans/
 .pnpm-store/
 .env*
+.scratchpad/

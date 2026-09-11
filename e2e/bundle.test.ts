@@ -29,7 +29,7 @@ function runBundle(
 function makeWorkspace(): string {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "deepsec-bundle-"));
   // Symlink the repo's node_modules so the temp workspace can resolve
-  // `deepsec/config` (workspace symlink) and the externalized native deps.
+  // `@aryasaatvik/deepsec/config` (workspace symlink) and the externalized native deps.
   fs.symlinkSync(path.join(ROOT, "node_modules"), path.join(dir, "node_modules"), "dir");
   return dir;
 }
@@ -53,7 +53,7 @@ describe("bundle e2e", () => {
     const dts = fs.readFileSync(path.join(ROOT, "packages/deepsec/dist/config.d.ts"), "utf-8");
     // Consumers install only `deepsec` from npm — `@deepsec/core` and
     // `@deepsec/scanner` are workspace-internal. Any leaked re-export
-    // here breaks typing for `import { defineConfig } from "deepsec/config"`.
+    // here breaks typing for `import { defineConfig } from "@aryasaatvik/deepsec/config"`.
     expect(dts).not.toMatch(/from\s+["']@deepsec\//);
   });
 
@@ -95,7 +95,7 @@ describe("bundle e2e", () => {
     const cwd = makeWorkspace();
     fs.writeFileSync(
       path.join(cwd, "deepsec.config.ts"),
-      `import { defineConfig } from "deepsec/config";
+      `import { defineConfig } from "@aryasaatvik/deepsec/config";
 export default defineConfig({
   projects: [{ id: "fixture", root: ${JSON.stringify(FIXTURES)} }],
 });`,
@@ -118,7 +118,7 @@ export default defineConfig({
     const cwd = makeWorkspace();
     fs.writeFileSync(
       path.join(cwd, "deepsec.config.ts"),
-      `import { defineConfig } from "deepsec/config";
+      `import { defineConfig } from "@aryasaatvik/deepsec/config";
 console.error("[config-loaded-marker]");
 export default defineConfig({
   projects: [{ id: "fixture", root: ${JSON.stringify(FIXTURES)} }],
@@ -136,7 +136,7 @@ export default defineConfig({
     // and visible in the scan log.
     fs.writeFileSync(
       path.join(cwd, "deepsec.config.ts"),
-      `import { defineConfig } from "deepsec/config";
+      `import { defineConfig } from "@aryasaatvik/deepsec/config";
 const plugin = {
   name: "inline-test-plugin",
   matchers: [{
@@ -163,7 +163,7 @@ export default defineConfig({
 
   it("samples/webapp/ — config loads and custom matchers register", () => {
     const sampleDir = path.join(ROOT, "samples/webapp");
-    // Symlink node_modules so the sample's `deepsec/config` import resolves.
+    // Symlink node_modules so the sample's `@aryasaatvik/deepsec/config` import resolves.
     const link = path.join(sampleDir, "node_modules");
     if (!fs.existsSync(link)) {
       fs.symlinkSync(path.join(ROOT, "node_modules"), link, "dir");
@@ -243,10 +243,11 @@ export default defineConfig({
       code: "MODEL_SELECTION_REQUIRED",
       missingInputs: ["model.profile"],
       documentation: {
-        skill: path.join(workspace, "node_modules", "deepsec", "SKILL.md"),
+        skill: path.join(workspace, "node_modules", "@aryasaatvik", "deepsec", "SKILL.md"),
         gettingStarted: path.join(
           workspace,
           "node_modules",
+          "@aryasaatvik",
           "deepsec",
           "dist",
           "docs",
@@ -321,12 +322,12 @@ export default defineConfig({
       const pkg = JSON.parse(fs.readFileSync(path.join(workspace, "package.json"), "utf-8"));
       expect(pkg.name).toBe("audits");
       const localDependency = pathToFileURL(path.join(ROOT, "packages/deepsec")).href;
-      expect(pkg.dependencies.deepsec).toBe(localDependency);
+      expect(pkg.dependencies["@aryasaatvik/deepsec"]).toBe(localDependency);
 
       // A local bundle must also repair a workspace produced by an earlier
       // run that accidentally pointed at the registry package. This is the
       // exact recovery path after install succeeded but config loading failed.
-      pkg.dependencies.deepsec = "^2.2.9";
+      pkg.dependencies["@aryasaatvik/deepsec"] = "^2.2.9";
       fs.writeFileSync(path.join(workspace, "package.json"), `${JSON.stringify(pkg, null, 2)}\n`);
       const resumed = runBundle(["init", workspace, targetRoot, "--scaffold-only"]);
       expect(resumed.status, `stdout: ${resumed.stdout}\nstderr: ${resumed.stderr}`).toBe(0);
@@ -334,7 +335,7 @@ export default defineConfig({
       const repairedPkg = JSON.parse(
         fs.readFileSync(path.join(workspace, "package.json"), "utf-8"),
       );
-      expect(repairedPkg.dependencies.deepsec).toBe(localDependency);
+      expect(repairedPkg.dependencies["@aryasaatvik/deepsec"]).toBe(localDependency);
       // packageManager: pinned to pnpm so a parent repo's `packageManager`
       // (e.g. yarn) doesn't make pnpm refuse to install in `.deepsec/`.
       expect(pkg.packageManager).toMatch(/^pnpm@\d+\.\d+\.\d+$/);
@@ -357,7 +358,7 @@ export default defineConfig({
 
       // AGENTS.md: workspace-level pointer (no per-project content).
       const agentsMd = fs.readFileSync(path.join(workspace, "AGENTS.md"), "utf-8");
-      expect(agentsMd).toContain("node_modules/deepsec/SKILL.md");
+      expect(agentsMd).toContain("node_modules/@aryasaatvik/deepsec/SKILL.md");
       expect(agentsMd).toContain("data/<id>/SETUP.md");
       expect(agentsMd).toContain("init-project");
       // AGENTS.md itself doesn't mention any specific project.
@@ -367,7 +368,7 @@ export default defineConfig({
       const setupMd = fs.readFileSync(path.join(workspace, "data/my-app/SETUP.md"), "utf-8");
       expect(setupMd).toContain("`my-app`");
       expect(setupMd).toContain("../my-app");
-      expect(setupMd).toContain("node_modules/deepsec/SKILL.md");
+      expect(setupMd).toContain("node_modules/@aryasaatvik/deepsec/SKILL.md");
       expect(setupMd).toContain("data/my-app/INFO.md");
 
       // project.json populated with rootPath.
@@ -621,7 +622,7 @@ export default defineConfig({
       expect(init.status, `init: ${init.stdout}\n${init.stderr}`).toBe(0);
 
       // Symlink node_modules so the freshly-init'd workspace can resolve
-      // `deepsec/config` during config evaluation by jiti.
+      // `@aryasaatvik/deepsec/config` during config evaluation by jiti.
       fs.symlinkSync(path.join(ROOT, "node_modules"), path.join(workspace, "node_modules"), "dir");
 
       const scan = runBundle(["scan", "--project-id", "my-app"], { cwd: workspace });

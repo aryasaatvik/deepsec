@@ -29,7 +29,7 @@ export default function Home() {
             ))}
           </ul>
           <div className="mt-10 flex flex-col gap-3">
-            <RunCommand command="npx deepsec init" />
+            <RunCommand command="npx @aryasaatvik/deepsec init" />
             <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
               <Button asChild className="w-full shadow-none sm:w-auto" size="lg" variant="outline">
                 <Link href={docsUrl}>Read the full docs</Link>

@@ -16,7 +16,7 @@ A deepsec plugin can fill any of five slots:
 A single plugin can fill any subset.
 
 The plugin contract lives in
-[`packages/core/src/plugin.ts`](https://github.com/vercel-labs/deepsec/blob/main/packages/core/src/plugin.ts):
+[`packages/core/src/plugin.ts`](https://github.com/aryasaatvik/deepsec/blob/main/packages/core/src/plugin.ts):
 
 ```ts
 export interface DeepsecPlugin {
@@ -34,7 +34,7 @@ export interface DeepsecPlugin {
 Plugins are loaded from `deepsec.config.ts`:
 
 ```ts
-import { defineConfig } from "deepsec/config";
+import { defineConfig } from "@aryasaatvik/deepsec/config";
 import myPlugin from "@my-org/deepsec-plugin";
 
 export default defineConfig({
@@ -59,8 +59,8 @@ Most common. Same shape as a built-in matcher; see
 
 ```ts
 // my-plugin/src/matchers/internal-rpc.ts
-import type { MatcherPlugin, CandidateMatch } from "deepsec/config";
-import { regexMatcher } from "deepsec/config";
+import type { MatcherPlugin, CandidateMatch } from "@aryasaatvik/deepsec/config";
+import { regexMatcher } from "@aryasaatvik/deepsec/config";
 
 export const internalRpcMatcher: MatcherPlugin = {
   slug: "internal-rpc-no-auth",
@@ -77,7 +77,7 @@ export const internalRpcMatcher: MatcherPlugin = {
 
 ```ts
 // my-plugin/src/index.ts
-import type { DeepsecPlugin } from "deepsec/config";
+import type { DeepsecPlugin } from "@aryasaatvik/deepsec/config";
 import { internalRpcMatcher } from "./matchers/internal-rpc.js";
 
 export default function myPlugin(): DeepsecPlugin {
@@ -105,8 +105,8 @@ are unique. If your slug collides with a built-in, **the plugin wins**
 a tighter org-specific version.
 
 A complete inline-plugin example with two real matchers lives at
-[`samples/webapp/deepsec.config.ts`](https://github.com/vercel-labs/deepsec/blob/main/samples/webapp/deepsec.config.ts) and
-[`samples/webapp/matchers/`](https://github.com/vercel-labs/deepsec/tree/main/samples/webapp/matchers/) — the same
+[`samples/webapp/deepsec.config.ts`](https://github.com/aryasaatvik/deepsec/blob/main/samples/webapp/deepsec.config.ts) and
+[`samples/webapp/matchers/`](https://github.com/aryasaatvik/deepsec/tree/main/samples/webapp/matchers/) — the same
 shape as a published plugin, just defined in the user's config file.
 
 ## Slot 2: ownership
@@ -133,7 +133,7 @@ a soft-fail.
 A minimal ownership provider that reads from a CODEOWNERS file:
 
 ```ts
-import type { OwnershipProvider } from "deepsec/config";
+import type { OwnershipProvider } from "@aryasaatvik/deepsec/config";
 import fs from "node:fs";
 
 export function codeownersProvider(rootPath: string): OwnershipProvider {
@@ -208,7 +208,7 @@ interface ExecutorProvider {
 ```
 
 The Vercel-Sandbox path lives in
-[`packages/deepsec/src/sandbox/`](https://github.com/vercel-labs/deepsec/tree/main/packages/deepsec/src/sandbox); it's
+[`packages/deepsec/src/sandbox/`](https://github.com/aryasaatvik/deepsec/tree/main/packages/deepsec/src/sandbox); it's
 not yet routed through `ExecutorProvider`. That refactor is on the
 roadmap. For now, this is the most experimental slot of the five.
 
@@ -219,7 +219,7 @@ Drop-in pattern:
 ```ts
 // my-plugin/src/__tests__/plugin.test.ts
 import { describe, expect, it } from "vitest";
-import { createDefaultRegistry } from "deepsec/config";
+import { createDefaultRegistry } from "@aryasaatvik/deepsec/config";
 import myPlugin from "../index.js";
 
 describe("@my-org/plugin-internal-services", () => {

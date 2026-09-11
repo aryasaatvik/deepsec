@@ -189,12 +189,12 @@ async function readStderrCapped(cmd: LoggableCommand, maxChars: number): Promise
  *     root (the dir with `pnpm-workspace.yaml`) so the full monorepo +
  *     lockfile ship over. Workers run `tsx packages/deepsec/src/cli.ts`.
  *
- *   - **installed**: this CLI is running from `node_modules/deepsec/` inside
+ *   - **installed**: this CLI is running from `node_modules/@aryasaatvik/deepsec/` inside
  *     a user's `.deepsec/` workspace. Tarball that workspace dir (parent of
  *     `deepsec.config.ts`) — it's a one-package npm project; the sandbox
  *     re-installs `deepsec` from npm. Workers run `node_modules/.bin/deepsec`.
  *
- * The deepsec package is identified by `package.json:name === "deepsec"`,
+ * The deepsec package is identified by `package.json:name === "@aryasaatvik/deepsec"`,
  * NOT by `pnpm-workspace.yaml`, so we don't accidentally pick the user's
  * parent monorepo if they happen to have one above `.deepsec/`.
  */
@@ -205,10 +205,10 @@ function resolveDeepsecAppContext(): { root: string; mode: DeepsecMode } {
     if (fs.existsSync(pkgPath)) {
       try {
         const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
-        if (pkg.name === "deepsec") {
+        if (pkg.name === "@aryasaatvik/deepsec") {
           if (dir.includes(`${path.sep}node_modules${path.sep}`)) {
             // Installed: ship the user's .deepsec/ workspace, not the
-            // node_modules/deepsec package itself. The workspace has its
+            // node_modules/@aryasaatvik/deepsec package itself. The workspace has its
             // own package.json that depends on `deepsec`, so the sandbox
             // re-resolves it (no fragile node_modules tarball).
             const cfg = getConfigPath();

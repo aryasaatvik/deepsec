@@ -381,7 +381,7 @@ export async function initCommand(opts: InitOpts) {
 
 function printAgentPrompt(id: string, targetRel: string): void {
   const lines = [
-    `Read node_modules/deepsec/SKILL.md to understand the tool. Then`,
+    `Read node_modules/@aryasaatvik/deepsec/SKILL.md to understand the tool. Then`,
     `read data/${id}/SETUP.md and follow it: open ${targetRel}, skim`,
     `its README + AGENTS.md/CLAUDE.md + a handful of representative`,
     `code files, then replace each section of data/${id}/INFO.md.`,
@@ -435,7 +435,7 @@ function packageJson(name: string, deepsecDependency: string): string {
       // `.deepsec/` refuse to run. Setting it here stops the walk at the
       // workspace root.
       packageManager: detectPackageManager(),
-      dependencies: { deepsec: deepsecDependency },
+      dependencies: { "@aryasaatvik/deepsec": deepsecDependency },
     },
     null,
     2,
@@ -451,8 +451,8 @@ function reconcileLocalDeepsecDependency(workspaceDir: string, dependency: strin
   if (!dependency.startsWith("file:")) return;
   const pkgPath = path.join(workspaceDir, "package.json");
   const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
-  if (pkg.dependencies?.deepsec === dependency) return;
-  pkg.dependencies = { ...(pkg.dependencies ?? {}), deepsec: dependency };
+  if (pkg.dependencies?.["@aryasaatvik/deepsec"] === dependency) return;
+  pkg.dependencies = { ...(pkg.dependencies ?? {}), "@aryasaatvik/deepsec": dependency };
   fs.writeFileSync(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`);
 }
 
@@ -488,7 +488,7 @@ function pnpmWorkspaceYaml(): string {
  * path called from `init`) appends new project entries above the marker.
  */
 function emptyConfigTs(): string {
-  return `import { defineConfig } from "deepsec/config";
+  return `import { defineConfig } from "@aryasaatvik/deepsec/config";
 import { generatedMatchersPlugin } from "./generated-matchers.js";
 
 export default defineConfig({
@@ -501,7 +501,7 @@ export default defineConfig({
 }
 
 function generatedMatchersTs(): string {
-  return `import { compileDeclarativeMatchers, type DeepsecPlugin } from "deepsec/config";
+  return `import { compileDeclarativeMatchers, type DeepsecPlugin } from "@aryasaatvik/deepsec/config";
 
 export const generatedMatchersPlugin: DeepsecPlugin = {
   name: "deepsec-generated-matchers",
@@ -522,7 +522,7 @@ Currently configured project: \`${id}\` (target: \`${targetRel}\`).
 
 ## Setup
 
-\`npx deepsec init\` created this workspace and normally completes its
+\`npx @aryasaatvik/deepsec init\` created this workspace and normally completes its
 install, exact Vercel project link, Sandbox/model probes, threat model,
 coverage-guided scans, custom matchers, and first AI processing run.
 
@@ -583,11 +583,11 @@ AGENTS.md                Pointer for coding agents
 
 After \`pnpm install\`:
 
-- Skill: \`node_modules/deepsec/SKILL.md\`
-- Full docs: \`node_modules/deepsec/dist/docs/{getting-started,configuration,models,writing-matchers,plugins,architecture,data-layout,vercel-setup,faq}.md\`
+- Skill: \`node_modules/@aryasaatvik/deepsec/SKILL.md\`
+- Full docs: \`node_modules/@aryasaatvik/deepsec/dist/docs/{getting-started,configuration,models,writing-matchers,plugins,architecture,data-layout,vercel-setup,faq}.md\`
 
 Or browse on
-[GitHub](https://github.com/vercel/deepsec/tree/main/docs).
+[GitHub](https://github.com/aryasaatvik/deepsec/tree/main/docs).
 `;
 }
 
@@ -612,13 +612,13 @@ asked to set a project up.
   new project.
 - **Write a custom matcher** (only after a real true-positive shows you
   a pattern worth keeping): read
-  \`node_modules/deepsec/dist/docs/writing-matchers.md\`.
+  \`node_modules/@aryasaatvik/deepsec/dist/docs/writing-matchers.md\`.
 
 ## Reference
 
-The deepsec skill is at \`node_modules/deepsec/SKILL.md\` (after
+The deepsec skill is at \`node_modules/@aryasaatvik/deepsec/SKILL.md\` (after
 \`pnpm install\`). The full docs ship at
-\`node_modules/deepsec/dist/docs/\`.
+\`node_modules/@aryasaatvik/deepsec/dist/docs/\`.
 `;
 }
 
