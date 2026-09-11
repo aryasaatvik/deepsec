@@ -515,14 +515,30 @@ export async function resolvePiModelWithDynamicGateway(
   }
 }
 
+export const PI_MODEL_REFRESH_TIMEOUT_MS = 15_000;
+
+/**
+ * Create-time model-catalog refresh policy. Online by default so providers
+ * expose models newer than pi's static builtin list (opencode-go's
+ * deepseek-v4.1-flash, for example); setting `PI_OFFLINE` forces offline. The
+ * refresh is bounded via `modelRefreshTimeoutMs` so a slow catalog never
+ * stalls startup; on failure pi keeps the static catalog plus its
+ * models-store.json cache.
+ *
+ * Exported for tests.
+ */
+export function piCatalogRefreshOptions(env: NodeJS.ProcessEnv = process.env): {
+  allowModelNetwork: boolean;
+  modelRefreshTimeoutMs: number;
+} {
+  return {
+    allowModelNetwork: env.PI_OFFLINE === undefined,
+    modelRefreshTimeoutMs: PI_MODEL_REFRESH_TIMEOUT_MS,
+  };
+}
+
 async function createPiSession(projectRoot: string, cfg: PiAgentConfig): Promise<PiSessionSetup> {
   const agentDir = getAgentDir();
-  // Refresh pi's model catalog over the network when available so providers
-  // expose models newer than pi's static builtin list (opencode-go's
-  // deepseek-v4.1-flash, for example). The create-time refresh is bounded via
-  // modelRefreshTimeoutMs; on failure pi keeps the static catalog plus its
-  // models-store.json cache. Setting PI_OFFLINE forces offline behavior.
-  const allowModelNetwork = process.env.PI_OFFLINE === undefined;
   // ModelRuntime is pi ≥0.81's canonical model/auth container (it replaced
   // the AuthStorage + ModelRegistry.create pair). Uses the user's auth.json /
   // models.json when present; runtime API keys from env are layered on top
@@ -530,8 +546,7 @@ async function createPiSession(projectRoot: string, cfg: PiAgentConfig): Promise
   const runtime = await ModelRuntime.create({
     authPath: path.join(agentDir, "auth.json"),
     modelsPath: path.join(agentDir, "models.json"),
-    allowModelNetwork,
-    modelRefreshTimeoutMs: 15_000,
+    ...piCatalogRefreshOptions(),
   });
   await configureRuntimeAuth(runtime, cfg);
 
