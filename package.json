@@ -27,6 +27,11 @@
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
     "knip": "knip",
+    "tegami": "tsx scripts/tegami.mts",
+    "version:packages": "pnpm run tegami version",
+    "release:validate": "tsx scripts/validate-release.ts",
+    "release:check": "pnpm run validate && pnpm run release:validate",
+    "release": "pnpm run release:check && pnpm run tegami publish",
     "validate": "pnpm -r build && pnpm lint && pnpm knip && pnpm bundle && pnpm typecheck:deepsec && pnpm test"
   },
   "keywords": [
@@ -42,6 +47,7 @@
     "@biomejs/biome": "^2.4.13",
     "@types/node": "^22.0.0",
     "knip": "^6.9.0",
+    "tegami": "1.4.0",
     "tsx": "^4.23.1",
     "typescript": "^5.7.0",
     "vitest": "^3.2.7"

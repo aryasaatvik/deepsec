@@ -45,7 +45,7 @@ class LocalCommand implements SandboxCommand {
       this.stderrText += text;
       this.push({ stream: "stderr", data: text });
     });
-    child.on("exit", (code) => this.finish(code ?? -1));
+    child.on("close", (code) => this.finish(code ?? -1));
     child.on("error", (error) => {
       this.stderrText += String(error);
       this.push({ stream: "stderr", data: String(error) });

@@ -3,7 +3,7 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [dev]
   workflow_dispatch:
 
 # Cancel in-progress PR and manually dispatched runs for the same branch; let
