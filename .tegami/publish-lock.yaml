@@ -1,0 +1,23 @@
+core:changelogs:
+  - content: "---\npackages:\n  \"@aryasaatvik/deepsec\":\n    type: minor\n---\n\n## Fork of deepsec: Codex Daybreak default, Pi second, pluggable sandboxes\n\n`@aryasaatvik/deepsec` is a fork of `vercel-labs/deepsec` tuned for this\nworkspace:\n\n- Codex is the default harness with `daybreak-blue-latest`; Pi is the second\n  recommended harness, with OpenCode Go and OpenAI Codex subscription presets.\n- Sandbox execution is provider-pluggable: a `SandboxProvider` interface with a\n  Vercel adapter and a local reference adapter, selected with\n  `--sandbox-provider`.\n- The fork builds and publishes with pnpm 12; `packages/website` is kept in-tree\n  but excluded from the workspace.\n"
+    filename: 2026-09-11-fork-foundation.md
+    v: 0.0.0
+core:packages:
+  - id: npm:deepsec-monorepo
+    updated: true
+  - id: npm:@deepsec/core
+    updated: false
+  - changelogIds:
+      - 2026-09-11-fork-foundation.md
+    id: npm:@aryasaatvik/deepsec
+    updated: true
+  - id: npm:@deepsec/processor
+    updated: false
+  - id: npm:@deepsec/scanner
+    updated: false
+npm:packages:
+  - id: npm:deepsec-monorepo
+  - id: npm:@deepsec/core
+  - id: npm:@aryasaatvik/deepsec
+  - id: npm:@deepsec/processor
+  - id: npm:@deepsec/scanner

@@ -1,9 +1,6 @@
----
-packages:
-  "@aryasaatvik/deepsec": minor
----
+## @aryasaatvik/deepsec@2.4.0
 
-## Fork of deepsec: Codex Daybreak default, Pi second, pluggable sandboxes
+### Fork of deepsec: Codex Daybreak default, Pi second, pluggable sandboxes
 
 `@aryasaatvik/deepsec` is a fork of `vercel-labs/deepsec` tuned for this
 workspace:
