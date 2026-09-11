@@ -69,10 +69,9 @@ bootstrap snapshot, worker spawn, file upload/download, and result
 merge without spending model tokens. Gated on `DEEPSEC_E2E_LIVE_SANDBOX=1`
 + Vercel Sandbox credentials, so `pnpm test` skips it by default.
 
-- **In CI**: trigger the
-  [E2E live sandbox](.github/workflows/e2e-live-sandbox.yml) workflow
-  manually from GitHub Actions. Required repo secrets: `VERCEL_TOKEN`,
-  `VERCEL_TEAM_ID`, `VERCEL_PROJECT_ID`. (No AI key needed.)
+- **In CI**: not wired up on this fork; run it locally (below). Upstream ran a
+  dedicated workflow with `VERCEL_TOKEN`, `VERCEL_TEAM_ID`, and
+  `VERCEL_PROJECT_ID`.
 - **Locally**, when working on sandbox code:
   ```bash
   VERCEL_OIDC_TOKEN=$(grep ^VERCEL_OIDC .deepsec/.env.local | cut -d= -f2) \
