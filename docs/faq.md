@@ -188,5 +188,5 @@ promising sites first.
 
 ## What if I find a vulnerability in deepsec itself?
 
-See [SECURITY.md](https://github.com/vercel-labs/deepsec/blob/main/SECURITY.md). Don't open a public issue — use
+See [SECURITY.md](https://github.com/aryasaatvik/deepsec/blob/main/SECURITY.md). Don't open a public issue — use
 GitHub Security Advisories instead.

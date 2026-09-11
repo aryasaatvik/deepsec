@@ -408,7 +408,7 @@ export async function runSetupWorkflow(
     let installResult: Awaited<ReturnType<typeof ensureWorkspaceInstall>>;
     if (
       !isCheckpointCurrent(state, "install", installInput, () =>
-        fs.existsSync("node_modules/deepsec"),
+        fs.existsSync("node_modules/@aryasaatvik/deepsec"),
       )
     ) {
       installResult = await runPhase(state, reporter, "install", installInput, () =>

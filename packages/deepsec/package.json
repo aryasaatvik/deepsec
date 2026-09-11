@@ -1,13 +1,20 @@
 {
-  "name": "deepsec",
+  "name": "@aryasaatvik/deepsec",
   "version": "2.3.9",
   "description": "AI-powered vulnerability scanner for any codebase",
   "license": "Apache-2.0",
+  "author": "Saatvik Arya",
   "repository": {
     "type": "git",
-    "url": "https://github.com/vercel-labs/deepsec"
+    "url": "git+https://github.com/aryasaatvik/deepsec.git"
   },
-  "homepage": "https://deepsec.sh",
+  "homepage": "https://github.com/aryasaatvik/deepsec#readme",
+  "bugs": {
+    "url": "https://github.com/aryasaatvik/deepsec/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "bin": {
     "deepsec": "./dist/cli.mjs"

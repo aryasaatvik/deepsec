@@ -22,7 +22,6 @@
     }
   },
   "ignoreIssues": {
-    "packages/website/source.config.ts": ["exports"],
     "packages/deepsec/src/auth/*.ts": ["exports", "types"],
     "packages/deepsec/src/setup/*.ts": ["exports", "types"],
     "packages/deepsec/src/commands/init.ts": ["types"],

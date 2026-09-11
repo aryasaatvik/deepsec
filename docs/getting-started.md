@@ -218,8 +218,8 @@ npx deepsec init --headless
 
 Coding agents should read the docs deepsec installs into the workspace,
 which always match the installed version: start with
-`.deepsec/node_modules/deepsec/SKILL.md`, then the topics under
-`.deepsec/node_modules/deepsec/dist/docs/`.
+`.deepsec/node_modules/@aryasaatvik/deepsec/SKILL.md`, then the topics under
+`.deepsec/node_modules/@aryasaatvik/deepsec/dist/docs/`.
 
 ## Scanning more than one repository
 

@@ -35,10 +35,11 @@ describe("headless setup plan", () => {
       ]),
     );
     expect(plan.documentation).toMatchObject({
-      skill: path.join(workspace, "node_modules", "deepsec", "SKILL.md"),
+      skill: path.join(workspace, "node_modules", "@aryasaatvik", "deepsec", "SKILL.md"),
       gettingStarted: path.join(
         workspace,
         "node_modules",
+        "@aryasaatvik",
         "deepsec",
         "dist",
         "docs",

@@ -38,12 +38,14 @@ describe("headless setup protocol", () => {
     const payload = setupErrorPayload(error);
 
     expect(payload.documentation).toMatchObject({
-      skill: "/tmp/example/.deepsec/node_modules/deepsec/SKILL.md",
-      gettingStarted: "/tmp/example/.deepsec/node_modules/deepsec/dist/docs/getting-started.md",
-      vercelSetup: "/tmp/example/.deepsec/node_modules/deepsec/dist/docs/vercel-setup.md",
+      skill: "/tmp/example/.deepsec/node_modules/@aryasaatvik/deepsec/SKILL.md",
+      gettingStarted:
+        "/tmp/example/.deepsec/node_modules/@aryasaatvik/deepsec/dist/docs/getting-started.md",
+      vercelSetup:
+        "/tmp/example/.deepsec/node_modules/@aryasaatvik/deepsec/dist/docs/vercel-setup.md",
     });
     expect(formatSetupErrorHuman(error)).toContain(
-      "cat '/tmp/example/.deepsec/node_modules/deepsec/SKILL.md'",
+      "cat '/tmp/example/.deepsec/node_modules/@aryasaatvik/deepsec/SKILL.md'",
     );
   });
 });

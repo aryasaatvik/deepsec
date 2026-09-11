@@ -6,8 +6,8 @@ description: Use deepsec (an AI-powered vulnerability scanner) — one-shot init
 # deepsec
 
 `deepsec` is an AI-powered vulnerability scanner. The one-shot initializer
-installs this skill at `.deepsec/node_modules/deepsec/SKILL.md`. From inside
-the isolated workspace the same path is `node_modules/deepsec/SKILL.md`. In a
+installs this skill at `.deepsec/node_modules/@aryasaatvik/deepsec/SKILL.md`. From inside
+the isolated workspace the same path is `node_modules/@aryasaatvik/deepsec/SKILL.md`. In a
 Deepsec source clone, use the repository's `docs/` directory instead.
 
 When the user asks how to use, configure, or extend deepsec, read the
@@ -16,8 +16,8 @@ your training data.
 
 ## Where the docs are
 
-From the target repository, `.deepsec/node_modules/deepsec/dist/docs/`; from
-inside `.deepsec`, `node_modules/deepsec/dist/docs/`; or from a Deepsec source
+From the target repository, `.deepsec/node_modules/@aryasaatvik/deepsec/dist/docs/`; from
+inside `.deepsec`, `node_modules/@aryasaatvik/deepsec/dist/docs/`; or from a Deepsec source
 clone, `<deepsec-clone>/docs/`:
 
 - `getting-started.md` — one-shot initialization and resume walkthrough

@@ -80,7 +80,7 @@ Quickstart:
   npx deepsec init               install, connect, model, scan, process
 
   See \`deepsec init --help\` and the docs at:
-    https://github.com/vercel/deepsec`,
+    https://github.com/aryasaatvik/deepsec`,
   );
 
 program

@@ -96,7 +96,7 @@ Keep richer matchers beside the generated plugin:
 Register them through an additive inline plugin:
 
 ```ts
-import { defineConfig, type DeepsecPlugin } from "deepsec/config";
+import { defineConfig, type DeepsecPlugin } from "@aryasaatvik/deepsec/config";
 import { generatedMatchersPlugin } from "./generated-matchers.js";
 import { myRouteNoAuth } from "./matchers/my-route-no-auth.js";
 import { myInternalRpc } from "./matchers/my-internal-rpc.js";
@@ -120,7 +120,7 @@ rather than relying on replacement order.
 ## Matcher shape
 
 ```ts
-import { regexMatcher, type MatcherPlugin } from "deepsec/config";
+import { regexMatcher, type MatcherPlugin } from "@aryasaatvik/deepsec/config";
 
 export const myInternalRpc: MatcherPlugin = {
   slug: "my-internal-rpc",
@@ -157,8 +157,8 @@ Ask a coding agent to read:
 1. `.deepsec/data/<id>/setup/surface-inventory.json` for the intended surface;
 2. `.deepsec/generated-matchers.ts` for already-covered gaps;
 3. `.deepsec/data/<id>/files/` for candidate counts and revalidated findings;
-4. `.deepsec/node_modules/deepsec/dist/config.d.ts` for `MatcherPlugin`; and
-5. `.deepsec/node_modules/deepsec/dist/samples/webapp/` for richer examples.
+4. `.deepsec/node_modules/@aryasaatvik/deepsec/dist/config.d.ts` for `MatcherPlugin`; and
+5. `.deepsec/node_modules/@aryasaatvik/deepsec/dist/samples/webapp/` for richer examples.
 
 Require it to explain the missed surface, propose a bounded matcher, add
 examples, register the plugin without removing `generatedMatchersPlugin`, and

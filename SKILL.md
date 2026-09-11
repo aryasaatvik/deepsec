@@ -44,7 +44,7 @@ Ask before doing anything else so the rest of the flow can run unattended.
 From the repository root:
 
 - **No `.deepsec/deepsec.config.ts`** → not onboarded. Do step 3 in full.
-- **`.deepsec/` exists but `.deepsec/node_modules/deepsec` is missing, or a
+- **`.deepsec/` exists but `.deepsec/node_modules/@aryasaatvik/deepsec` is missing, or a
   previous setup was interrupted** → re-run the init command from step 3; it
   resumes from checkpoints and repairs the install rather than starting over.
 - **Otherwise** → onboarded; skip to step 4.
@@ -100,7 +100,7 @@ Run from inside `.deepsec/` (the config loader only finds
 ## Going deeper
 
 After onboarding, full documentation ships with the installed package at
-`.deepsec/node_modules/deepsec/dist/docs/` — `getting-started.md`,
+`.deepsec/node_modules/@aryasaatvik/deepsec/dist/docs/` — `getting-started.md`,
 `reviewing-changes.md` (direct mode, exit codes, CI gating),
 `configuration.md`, `models.md`, and more. Read the relevant doc before
 varying the commands above; flags and defaults change between releases.

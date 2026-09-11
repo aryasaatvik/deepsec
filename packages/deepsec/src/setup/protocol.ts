@@ -22,7 +22,12 @@ export function setSetupDocumentationWorkspace(workspaceDir: string): void {
 
 export function setupDocumentation(): SetupDocumentation | undefined {
   if (!setupDocumentationWorkspace) return undefined;
-  const packageRoot = path.join(setupDocumentationWorkspace, "node_modules", "deepsec");
+  const packageRoot = path.join(
+    setupDocumentationWorkspace,
+    "node_modules",
+    "@aryasaatvik",
+    "deepsec",
+  );
   const docsDirectory = path.join(packageRoot, "dist", "docs");
   return {
     packageRoot,

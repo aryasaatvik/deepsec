@@ -1,9 +1,12 @@
 # deepsec
 
-[`deepsec`](https://deepsec.sh) is an agent-powered vulnerability scanner that you can run in your own infrastructure, optimized to perform on-demand review of all code in existing 
+> Fork of [vercel-labs/deepsec](https://github.com/vercel-labs/deepsec), published as
+> `@aryasaatvik/deepsec`.
+
+[`deepsec`](https://github.com/aryasaatvik/deepsec) is an agent-powered vulnerability scanner that you can run in your own infrastructure, optimized to perform on-demand review of all code in existing 
 large-scale repos.
 
-`deepsec` is designed to surface hard-to-find issues that have been lurking in applications for a long time. It is configured to use the best models at maximum thinking levels (tunable via `--thinking-level`, see [models](https://github.com/vercel-labs/deepsec/blob/main/docs/models.md)), meaning scans can cost thousands or even tens-of-thousands of dollars for large codebases. Our customers have found the cost worth it for how quickly they were able to patch vulnerabilities that would have otherwise gone unfixed.
+`deepsec` is designed to surface hard-to-find issues that have been lurking in applications for a long time. It is configured to use the best models at maximum thinking levels (tunable via `--thinking-level`, see [models](https://github.com/aryasaatvik/deepsec/blob/main/docs/models.md)), meaning scans can cost thousands or even tens-of-thousands of dollars for large codebases. Our customers have found the cost worth it for how quickly they were able to patch vulnerabilities that would have otherwise gone unfixed.
 
 For large codebases, work fans out across worker machines in parallel.
 If a run is interrupted or errors out partway through, just re-run the same
@@ -49,30 +52,30 @@ pnpm deepsec revalidate  # optional, cuts false-positive rate
 pnpm deepsec export --format md-dir --out ./findings
 ```
 
-The [getting started guide](https://github.com/vercel-labs/deepsec/blob/main/docs/getting-started.md)
+The [getting started guide](https://github.com/aryasaatvik/deepsec/blob/main/docs/getting-started.md)
 covers all of this in more detail, including using your own OpenAI or
 Anthropic API key and running from CI or a coding agent.
 
 ## Docs
 
 After initialization, agents can read the exact documentation matching the
-installed CLI at `.deepsec/node_modules/deepsec/SKILL.md` and
-`.deepsec/node_modules/deepsec/dist/docs/`. Setup errors expose these as
+installed CLI at `.deepsec/node_modules/@aryasaatvik/deepsec/SKILL.md` and
+`.deepsec/node_modules/@aryasaatvik/deepsec/dist/docs/`. Setup errors expose these as
 absolute machine-readable paths.
 
-- [Getting started](https://github.com/vercel-labs/deepsec/blob/main/docs/getting-started.md) — set up and run your first scan
-- [Reviewing changes](https://github.com/vercel-labs/deepsec/blob/main/docs/reviewing-changes.md) — `process --diff` and CI gating
-- [Supported technology](https://github.com/vercel-labs/deepsec/blob/main/docs/supported-tech.md) — built-in coverage
-- [Generated and hand-authored matchers](https://github.com/vercel-labs/deepsec/blob/main/docs/writing-matchers.md)
-- [Configuration](https://github.com/vercel-labs/deepsec/blob/main/docs/configuration.md)
-- [Plugins](https://github.com/vercel-labs/deepsec/blob/main/docs/plugins.md)
-- [Models](https://github.com/vercel-labs/deepsec/blob/main/docs/models.md)
-- [Project link and credentials](https://github.com/vercel-labs/deepsec/blob/main/docs/vercel-setup.md)
-- [Architecture](https://github.com/vercel-labs/deepsec/blob/main/docs/architecture.md)
-- [Data layout](https://github.com/vercel-labs/deepsec/blob/main/docs/data-layout.md)
-- [FAQ](https://github.com/vercel-labs/deepsec/blob/main/docs/faq.md)
-- [Samples](https://github.com/vercel-labs/deepsec/tree/main/samples)
-- [Contributing](https://github.com/vercel-labs/deepsec/blob/main/CONTRIBUTING.md)
+- [Getting started](https://github.com/aryasaatvik/deepsec/blob/main/docs/getting-started.md) — set up and run your first scan
+- [Reviewing changes](https://github.com/aryasaatvik/deepsec/blob/main/docs/reviewing-changes.md) — `process --diff` and CI gating
+- [Supported technology](https://github.com/aryasaatvik/deepsec/blob/main/docs/supported-tech.md) — built-in coverage
+- [Generated and hand-authored matchers](https://github.com/aryasaatvik/deepsec/blob/main/docs/writing-matchers.md)
+- [Configuration](https://github.com/aryasaatvik/deepsec/blob/main/docs/configuration.md)
+- [Plugins](https://github.com/aryasaatvik/deepsec/blob/main/docs/plugins.md)
+- [Models](https://github.com/aryasaatvik/deepsec/blob/main/docs/models.md)
+- [Project link and credentials](https://github.com/aryasaatvik/deepsec/blob/main/docs/vercel-setup.md)
+- [Architecture](https://github.com/aryasaatvik/deepsec/blob/main/docs/architecture.md)
+- [Data layout](https://github.com/aryasaatvik/deepsec/blob/main/docs/data-layout.md)
+- [FAQ](https://github.com/aryasaatvik/deepsec/blob/main/docs/faq.md)
+- [Samples](https://github.com/aryasaatvik/deepsec/tree/main/samples)
+- [Contributing](https://github.com/aryasaatvik/deepsec/blob/main/CONTRIBUTING.md)
 
 ## AI provider
 
@@ -83,7 +86,7 @@ provider — by passing `--model-auth direct` with `--ai-provider` and
 `--ai-api-key-env` to `init`; no Vercel account is needed in that mode.
 Deepsec only ever stores the *name* of the environment variable holding
 your key, never the key itself. See
-[project link and credentials](https://github.com/vercel-labs/deepsec/blob/main/docs/vercel-setup.md)
+[project link and credentials](https://github.com/aryasaatvik/deepsec/blob/main/docs/vercel-setup.md)
 for the full reference.
 
 If a `process` or `revalidate` run halts because the upstream credential

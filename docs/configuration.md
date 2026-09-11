@@ -7,7 +7,7 @@ deepsec reads `deepsec.config.{ts,mjs,js,cjs}` from the current working
 directory, walking up. The CLI inherits whatever the file declares.
 
 ```ts
-import { defineConfig } from "deepsec/config";
+import { defineConfig } from "@aryasaatvik/deepsec/config";
 import myPlugin from "@my-org/deepsec-plugin-foo";
 
 export default defineConfig({
@@ -22,7 +22,7 @@ export default defineConfig({
 
 For a fully-worked example exercising every common field
 (`infoMarkdown`, `promptAppend`, `priorityPaths`, an inline plugin),
-see [`samples/webapp/deepsec.config.ts`](https://github.com/vercel-labs/deepsec/blob/main/samples/webapp/deepsec.config.ts).
+see [`samples/webapp/deepsec.config.ts`](https://github.com/aryasaatvik/deepsec/blob/main/samples/webapp/deepsec.config.ts).
 
 ## Top-level fields
 
