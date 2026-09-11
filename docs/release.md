@@ -37,8 +37,8 @@ Trusted publishing can only be configured after the package exists, and Actions
 must be enabled on the fork:
 
 1. Enable Actions on `aryasaatvik/deepsec` (Actions tab).
-2. Publish once locally: from `packages/deepsec`, `pnpm run release:check` then
-   `npm publish --access public`.
+2. Publish once from the repo root: `pnpm run release:check`, then from
+   `packages/deepsec`: `npm publish --access public`.
 3. On npm, add a trusted publisher for `@aryasaatvik/deepsec`: repository
    `aryasaatvik/deepsec`, workflow `publish.yml`, environment blank, no token.
 4. Every later release goes through `publish.yml` only.

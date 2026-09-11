@@ -37,3 +37,15 @@ jobs:
       - run: pnpm run release:check && pnpm run tegami ci
         env:
           GITHUB_TOKEN: ${{ github.token }}
+
+      # Version PRs are authored with GITHUB_TOKEN, which does not trigger
+      # `pull_request` workflows. Dispatch CI for the version branch so the PR
+      # receives checks before it can be merged.
+      - name: Trigger CI on a version PR
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git ls-remote --exit-code --heads origin tegami/version-packages >/dev/null 2>&1; then
+            gh workflow run ci.yml --ref tegami/version-packages
+          fi

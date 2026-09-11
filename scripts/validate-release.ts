@@ -55,4 +55,15 @@ assert(
   `deepsec --version (${version}) != package version ${pkg.version}`,
 );
 
+// The packed artifact must expose the public config sub-export, not just the
+// CLI; a tarball that drops it would still pass a source-tree check.
+const installed = path.join(prefix, "node_modules", "@aryasaatvik", "deepsec");
+for (const file of ["dist/config.mjs", "dist/config.d.ts"]) {
+  assert(fs.existsSync(path.join(installed, file)), `installed package is missing ${file}`);
+}
+const installedPkg = JSON.parse(fs.readFileSync(path.join(installed, "package.json"), "utf8")) as {
+  exports?: Record<string, unknown>;
+};
+assert(installedPkg.exports?.["./config"], "installed package does not export ./config");
+
 console.log(`Release validation passed for ${pkg.name}@${pkg.version}.`);
