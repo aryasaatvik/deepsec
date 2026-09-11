@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
+import { OPENCODE_GO_ROUTE } from "../auth/model-route.js";
 import { modelRouteFromCli } from "../setup/options.js";
 
 describe("modelRouteFromCli", () => {
-  it("defaults to the Vercel gateway", () => {
-    expect(modelRouteFromCli({})).toEqual({ mode: "gateway", provider: "vercel" });
+  it("defaults to the OpenCode Go Pi route", () => {
+    expect(modelRouteFromCli({})).toEqual(OPENCODE_GO_ROUTE);
   });
 
   it("supports local subscriptions with no credential wiring", () => {

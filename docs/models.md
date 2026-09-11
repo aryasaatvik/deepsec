@@ -5,12 +5,12 @@ description: "Choose Codex, Claude, or Pi for process and revalidate runs, and c
 
 deepsec talks to LLMs through interchangeable agent backends:
 
-| Backend                     | Default model         | Used by                      |
-|-----------------------------|-----------------------|------------------------------|
-| `codex` (default)           | `gpt-5.5`             | `process`, `revalidate`      |
-| `claude`                    | `claude-opus-4-8`     | `process`, `revalidate`      |
-| `pi`                        | `zai/glm-5.2`        | `process`, `revalidate` |
-| `claude` (triage)           | `claude-sonnet-4-6`   | `triage` (Claude-only)       |
+| Backend                     | Default model                      | Used by                      |
+|-----------------------------|------------------------------------|------------------------------|
+| `pi` (default)              | `opencode-go/deepseek-v4.1-flash`  | `process`, `revalidate`      |
+| `codex`                     | `gpt-5.5`                          | `process`, `revalidate`      |
+| `claude`                    | `claude-opus-4-8`                  | `process`, `revalidate`      |
+| `claude` (triage)           | `claude-sonnet-4-6`                | `triage` (Claude-only)       |
 
 Interactive one-shot setup recommends five benchmark-backed combinations:
 GPT-5.6 Sol, Claude Opus 5, Kimi K3, Grok 4.5, and the current DeepSeek entry.
@@ -139,18 +139,18 @@ and cost for that loop. `gpt-5.5-pro` is the most careful Codex
 option at significantly higher cost; `gpt-5.4` and below are fine for
 follow-up reinvestigation passes.
 
-### Pi for alternate harness runs
+### Pi (default)
 
 Pi uses `@earendil-works/pi-coding-agent` with read-only tools
 (`read`, `grep`, `find`, `ls`) and the same deepsec prompt/schema as the
-other backends. Its default model is GLM 5.2 through Vercel AI Gateway:
+other backends. Its default model is `opencode-go/deepseek-v4.1-flash`
+through OpenCode Go; OpenAI Codex subscriptions are also supported through
+the machine-wide pi login:
 
 ```bash
-AI_GATEWAY_API_KEY=vck_...
+OPENCODE_API_KEY=...
 pnpm deepsec process --project-id my-app --agent pi
 ```
-
-Normal setup pulls and uses the exact linked workspace's OIDC credential.
 
 For OpenAI-compatible gateways such as Martian, select and persist a custom
 route during setup:

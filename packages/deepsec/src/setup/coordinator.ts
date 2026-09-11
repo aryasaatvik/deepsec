@@ -26,7 +26,7 @@ import {
   type ConnectionVerificationCheckpoint,
   ensureConnectedWorkspace,
 } from "../auth/ensure-connected-workspace.js";
-import type { ModelRoute } from "../auth/model-route.js";
+import { type ModelRoute, OPENCODE_GO_ROUTE } from "../auth/model-route.js";
 import { loadConfig } from "../load-config.js";
 import { reconcileAiGatewayDefaultsForRoute } from "../preflight.js";
 import { resolveAgentType } from "../resolve-agent-type.js";
@@ -327,7 +327,7 @@ export async function runSetupWorkflow(
       const result = await ensureConnectedWorkspace({
         workspaceDir,
         interactive: !setupOptions.nonInteractive,
-        modelRoute: setupOptions.modelRoute ?? { mode: "gateway", provider: "vercel" },
+        modelRoute: setupOptions.modelRoute ?? { ...OPENCODE_GO_ROUTE },
         agentTypes: [agentType],
         env: process.env,
         teamId: setupOptions.teamId,
@@ -440,10 +440,7 @@ export async function runSetupWorkflow(
       !options.modelRoute && !checkpointRoute ? await loadConfig(workspaceDir) : undefined;
     const route = options.modelRoute ??
       checkpointRoute ??
-      (existingConfig?.config.ai as ModelRoute | undefined) ?? {
-        mode: "gateway",
-        provider: "vercel",
-      };
+      (existingConfig?.config.ai as ModelRoute | undefined) ?? { ...OPENCODE_GO_ROUTE };
     reconcileAiGatewayDefaultsForRoute(route);
     const agentConfig = buildAgentConfig({ model, thinkingLevel, modelRoute: route });
     reconcileWorkspaceConfig(workspaceDir, route, agentType, model, thinkingLevel);
