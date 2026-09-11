@@ -1,7 +1,8 @@
 import { attributionHeaders } from "@deepsec/processor";
-import { type NetworkPolicy, type NetworkPolicyRule, Sandbox } from "@vercel/sandbox";
+import type { NetworkPolicy, NetworkPolicyRule } from "@vercel/sandbox";
 import type { BrokeredModelCredential } from "../auth/model-route.js";
 import { markSetupComplete } from "./download.js";
+import { createSandboxProvider, type SandboxHandle, type SandboxProviderKind } from "./provider.js";
 import { trackSandbox, untrackSandbox } from "./shutdown.js";
 import { extractTarballOnSandbox, type TarballStats, uploadTarballToSandbox } from "./upload.js";
 
@@ -304,6 +305,8 @@ interface BootstrapOptions {
   projectId: string;
   /** Which agent backend the workers will run — drives which native binary we install */
   agentType?: string;
+  /** Sandbox execution provider (defaults to Vercel). */
+  provider?: SandboxProviderKind;
   vcpus: number;
   timeout: number;
   /** Source repo vs. user's `.deepsec/` install — see DeepsecMode docstring */
@@ -337,9 +340,10 @@ export async function createBootstrapSnapshot(opts: BootstrapOptions): Promise<s
   const sandboxEnv = buildSandboxEnv(agentType, {});
 
   opts.onLog("Creating bootstrap sandbox...");
-  let sandbox: Sandbox;
+  let sandbox: SandboxHandle;
   try {
-    sandbox = await Sandbox.create({
+    const provider = await createSandboxProvider(opts.provider);
+    sandbox = await provider.create({
       runtime: "node24",
       env: sandboxEnv,
       resources: { vcpus: opts.vcpus },
@@ -432,6 +436,8 @@ export async function createBootstrapSnapshot(opts: BootstrapOptions): Promise<s
 
 export interface SpawnOptions {
   snapshotId: string;
+  /** Sandbox execution provider (defaults to Vercel). */
+  provider?: SandboxProviderKind;
   /** Drives which API base URL gets rewritten to the local proxy */
   agentType?: string;
   aiApiKeyEnv?: string;
@@ -453,7 +459,7 @@ export interface SpawnOptions {
  * only files modified during the worker's run. Also starts the local
  * request-proxy that mediates outbound API traffic for the active agent.
  */
-export async function spawnFromSnapshot(opts: SpawnOptions): Promise<Sandbox> {
+export async function spawnFromSnapshot(opts: SpawnOptions): Promise<SandboxHandle> {
   // Resolve once. The same `credentials` object is the source of truth for
   // (a) what placeholders to expose in the sandbox env (so the SDK builds)
   // and (b) which Authorization header the firewall transform should inject.
@@ -473,9 +479,10 @@ export async function spawnFromSnapshot(opts: SpawnOptions): Promise<Sandbox> {
     opts.allowedHosts,
   );
 
-  let sandbox: Sandbox;
+  let sandbox: SandboxHandle;
   try {
-    sandbox = await Sandbox.create({
+    const provider = await createSandboxProvider(opts.provider);
+    sandbox = await provider.create({
       source: { type: "snapshot", snapshotId: opts.snapshotId },
       env: sandboxEnv,
       resources: { vcpus: opts.vcpus },
@@ -513,7 +520,7 @@ export async function spawnFromSnapshot(opts: SpawnOptions): Promise<Sandbox> {
 }
 
 async function startRequestProxy(
-  sandbox: Sandbox,
+  sandbox: SandboxHandle,
   mode: DeepsecMode,
   onLog: (msg: string) => void,
 ): Promise<void> {
@@ -555,7 +562,7 @@ exit 1
 // --- Native binary remediation (shared helper) ---
 
 async function ensureClaudeNativeBinaries(
-  sandbox: Sandbox,
+  sandbox: SandboxHandle,
   onLog: (msg: string) => void,
 ): Promise<void> {
   const script = `
@@ -786,7 +793,10 @@ exit 0
 `;
 }
 
-async function installAgentTools(sandbox: Sandbox, onLog: (msg: string) => void): Promise<void> {
+async function installAgentTools(
+  sandbox: SandboxHandle,
+  onLog: (msg: string) => void,
+): Promise<void> {
   const script = buildInstallAgentToolsScript();
   const result = await sandbox.runCommand({
     cmd: "bash",
@@ -820,7 +830,7 @@ async function installAgentTools(sandbox: Sandbox, onLog: (msg: string) => void)
  * sandboxes too — no libc detection needed.
  */
 async function ensureCodexNativeBinary(
-  sandbox: Sandbox,
+  sandbox: SandboxHandle,
   onLog: (msg: string) => void,
 ): Promise<void> {
   const script = `
@@ -939,7 +949,10 @@ rm -rf /tmp/codex-native-fetch
  * firewall, which would already block the analytics endpoints; this just
  * keeps the SDK from logging connection-refused noise.
  */
-async function writeCodexConfig(sandbox: Sandbox, onLog: (msg: string) => void): Promise<void> {
+async function writeCodexConfig(
+  sandbox: SandboxHandle,
+  onLog: (msg: string) => void,
+): Promise<void> {
   const configToml = `# Written by deepsec sandbox bootstrap. Disables non-AI egress
 # (analytics, update checks, OTEL exporters) so the agent stays within
 # the sandbox firewall allowlist. Also pins plugins off — Codex 0.143+
@@ -971,7 +984,7 @@ remote_plugin = false
 }
 
 async function runAndLog(
-  sandbox: Sandbox,
+  sandbox: SandboxHandle,
   cmd: string,
   args: string[],
   cwd: string,

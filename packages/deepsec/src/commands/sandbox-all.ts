@@ -11,6 +11,7 @@ import {
 import { resolveAgentType } from "../resolve-agent-type.js";
 import { orchestrate } from "../sandbox/orchestrator.js";
 import { partitionFiles } from "../sandbox/partitioner.js";
+import type { SandboxProviderKind } from "../sandbox/provider.js";
 import type { SandboxConfig, SandboxSubcommand } from "../sandbox/types.js";
 import { extractReinvestigate } from "./sandbox-process.js";
 
@@ -72,6 +73,7 @@ export async function sandboxAllCommand(
     vcpus?: number;
     timeout?: number;
     detach?: boolean;
+    sandboxProvider?: string;
     args?: string[];
   },
 ) {
@@ -101,7 +103,7 @@ export async function sandboxAllCommand(
       : undefined;
 
   // Same preflight as sandbox-process — fail fast before fanning out.
-  assertSandboxCredential();
+  if ((opts.sandboxProvider ?? "vercel") === "vercel") assertSandboxCredential();
   assertAgentCredential(agentType, {
     inSandbox: true,
     aiApiKeyEnv: explicitAiApiKeyEnv,
@@ -208,6 +210,7 @@ export async function sandboxAllCommand(
     const config: SandboxConfig = {
       projectId: a.projectId,
       command,
+      provider: (opts.sandboxProvider ?? "vercel") as SandboxProviderKind,
       sandboxCount: a.sandboxes,
       vcpus,
       limit: undefined,

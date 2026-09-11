@@ -2,9 +2,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { dataDir, getConfigPath, readProjectConfig } from "@deepsec/core";
-import { Sandbox } from "@vercel/sandbox";
 import { downloadResults } from "./download.js";
 import { partitionFiles } from "./partitioner.js";
+import { createSandboxProvider, type SandboxHandle } from "./provider.js";
 import {
   createBootstrapSnapshot,
   DEEPSEC_DIR,
@@ -323,6 +323,7 @@ async function bootstrapAndSpawn(
       snapshotId = await createBootstrapSnapshot({
         projectId: config.projectId,
         agentType: config.agentType,
+        provider: config.provider,
         vcpus: config.vcpus,
         timeout: config.timeout,
         mode: ctx.mode,
@@ -352,6 +353,7 @@ async function bootstrapAndSpawn(
       const sandbox = await spawnFromSnapshot({
         snapshotId: snapshotId!,
         agentType: config.agentType,
+        provider: config.provider,
         aiApiKeyEnv: config.aiApiKeyEnv,
         aiBaseUrl: config.aiBaseUrl,
         brokeredModelCredential: config.brokeredModelCredential,
@@ -379,7 +381,7 @@ async function bootstrapAndSpawn(
       const errMsg = parts.join(" | ") || String(err);
       onLog(`[sandbox-${idx}] Spawn failed: ${errMsg}`);
       return {
-        sandbox: null as unknown as Sandbox,
+        sandbox: null as unknown as SandboxHandle,
         index: idx,
         sandboxId: "",
         status: "error" as const,
@@ -463,6 +465,7 @@ export async function launch(config: SandboxConfig, onLog: (msg: string) => void
     runId,
     projectId: config.projectId,
     command: config.command,
+    provider: config.provider ?? "vercel",
     vcpus: config.vcpus,
     launchedAt: new Date().toISOString(),
     sandboxes: sandboxEntries,
@@ -507,7 +510,9 @@ export async function checkStatus(
 
   for (const entry of state.sandboxes) {
     try {
-      const sandbox = await Sandbox.get({ sandboxId: entry.sandboxId });
+      const sandbox = await (await createSandboxProvider(state.provider ?? "vercel")).get(
+        entry.sandboxId,
+      );
       const cmd = await sandbox.getCommand(entry.cmdId);
 
       if (cmd.exitCode === null) {
@@ -541,7 +546,9 @@ export async function collect(
 
   const resultPromises = state.sandboxes.map(async (entry): Promise<SandboxResult> => {
     try {
-      const sandbox = await Sandbox.get({ sandboxId: entry.sandboxId });
+      const sandbox = await (await createSandboxProvider(state.provider ?? "vercel")).get(
+        entry.sandboxId,
+      );
       const cmd = await sandbox.getCommand(entry.cmdId);
 
       if (cmd.exitCode === null) {

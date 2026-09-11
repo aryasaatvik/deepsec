@@ -514,6 +514,7 @@ const sandboxCmd = program
   )
   .option("--sandboxes <n>", "Number of parallel sandboxes (default: 1)", parseInt)
   .option("--vcpus <n>", "vCPUs per sandbox (default: 2, max: 8)", parseInt)
+  .option("--sandbox-provider <kind>", "Sandbox provider: vercel or local (default: vercel)")
   .option("--detach", "Launch sandboxes and exit immediately (collect results later)")
   .option("--run-id <id>", "Run ID for status/collect commands")
   .option("--snapshot-id <id>", "Restore from existing snapshot")
@@ -537,6 +538,7 @@ const sandboxAllCmd = program
   .allowExcessArguments(true)
   .option("--sandboxes <n>", "Total sandboxes to distribute (default: 10)", parseInt)
   .option("--vcpus <n>", "vCPUs per sandbox (default: auto from concurrency, max: 8)", parseInt)
+  .option("--sandbox-provider <kind>", "Sandbox provider: vercel or local (default: vercel)")
   .option("--timeout <ms>", "Sandbox timeout in ms (default: 5 hours)", parseInt)
   .action((subcommand: string, opts: Record<string, unknown>) => {
     const unknownArgs = sandboxAllCmd.args.slice(1);

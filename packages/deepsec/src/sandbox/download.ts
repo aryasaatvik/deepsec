@@ -1,9 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import { dataDir } from "@deepsec/core";
-import type { Sandbox } from "@vercel/sandbox";
 import * as tar from "tar";
 import { isFileRecordPath, mergeAfterExtract, snapshotFileRecords } from "./merge-records.js";
+import type { SandboxHandle } from "./provider.js";
 import { DATA_DIR } from "./setup.js";
 
 // Sandbox results are JSON file records, run metadata, reports, and
@@ -70,7 +70,7 @@ const SETUP_MARKER = "/tmp/deepsec-setup-done";
  * Touch a marker file at the end of setup. The results download uses
  * `find -newer <marker>` to grab only files modified during the run.
  */
-export async function markSetupComplete(sandbox: Sandbox): Promise<void> {
+export async function markSetupComplete(sandbox: SandboxHandle): Promise<void> {
   const res = await sandbox.runCommand({
     cmd: "touch",
     args: [SETUP_MARKER],
@@ -91,7 +91,7 @@ export async function markSetupComplete(sandbox: Sandbox): Promise<void> {
  * so we don't lose anything that lands during the download itself.
  */
 export async function downloadResults(
-  sandbox: Sandbox,
+  sandbox: SandboxHandle,
   sandboxIndex: number,
   projectId: string,
   onLog: (msg: string) => void,

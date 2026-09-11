@@ -8,6 +8,7 @@ import {
 import { resolveAgentType } from "../resolve-agent-type.js";
 import { resolveProjectId } from "../resolve-project-id.js";
 import { checkStatus, collect, launch, orchestrate } from "../sandbox/orchestrator.js";
+import type { SandboxProviderKind } from "../sandbox/provider.js";
 import type { SandboxConfig, SandboxSubcommand } from "../sandbox/types.js";
 
 const VALID_COMMANDS: SandboxSubcommand[] = ["process", "revalidate", "triage", "scan", "report"];
@@ -22,6 +23,7 @@ interface SandboxOpts {
   detach?: boolean;
   runId?: string;
   timeout?: number;
+  sandboxProvider?: string;
   args?: string[];
 }
 
@@ -71,6 +73,7 @@ function buildConfig(
   return {
     projectId,
     command: subcommand,
+    provider: (opts.sandboxProvider ?? "vercel") as SandboxProviderKind,
     sandboxCount: opts.sandboxes ?? 1,
     vcpus,
     // Extract key values from passthrough args for orchestrator/partitioner use
@@ -160,7 +163,7 @@ export async function sandboxCommand(subcommand: string, opts: SandboxOpts) {
   // on a doomed bootstrap sandbox. The credential brokering path needs
   // both a Vercel auth token (to create the sandbox) and an AI token (to
   // inject into the firewall transform).
-  assertSandboxCredential();
+  if ((opts.sandboxProvider ?? "vercel") === "vercel") assertSandboxCredential();
   assertAgentCredential(config.agentType, {
     inSandbox: true,
     aiApiKeyEnv: config.aiApiKeyEnv,
@@ -178,6 +181,13 @@ export async function sandboxCommand(subcommand: string, opts: SandboxOpts) {
 
   const startTime = Date.now();
   const onLog = makeLogger(startTime);
+
+  if (opts.detach && config.provider === "local") {
+    console.error(
+      "The local sandbox provider does not support --detach: local runs cannot be reattached for status/collect. Use --sandbox-provider vercel for detached runs.",
+    );
+    process.exit(1);
+  }
 
   if (opts.detach) {
     const runId = await launch(config, onLog);
