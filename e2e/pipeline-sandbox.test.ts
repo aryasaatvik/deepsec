@@ -9,10 +9,8 @@
  * NOT run on push/PR: requires Vercel Sandbox credentials and takes
  * minutes. Two ways to run:
  *
- * 1. CI (recommended) — the dedicated workflow at
- *    `.github/workflows/e2e-live-sandbox.yml`. Trigger manually from
- *    GitHub Actions → "E2E live sandbox" → "Run workflow". Repo
- *    secrets needed: `VERCEL_TOKEN`, `VERCEL_TEAM_ID`,
+ * 1. CI — not wired up on this fork; run it locally instead (below). Upstream
+ *    ran a dedicated workflow with `VERCEL_TOKEN`, `VERCEL_TEAM_ID`, and
  *    `VERCEL_PROJECT_ID`. (No AI key — the test uses a stub agent.)
  *
  * 2. Local — when iterating on sandbox code:
