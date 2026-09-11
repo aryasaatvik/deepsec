@@ -182,6 +182,13 @@ export async function sandboxCommand(subcommand: string, opts: SandboxOpts) {
   const startTime = Date.now();
   const onLog = makeLogger(startTime);
 
+  if (opts.detach && config.provider === "local") {
+    console.error(
+      "The local sandbox provider does not support --detach: local runs cannot be reattached for status/collect. Use --sandbox-provider vercel for detached runs.",
+    );
+    process.exit(1);
+  }
+
   if (opts.detach) {
     const runId = await launch(config, onLog);
     console.log();
