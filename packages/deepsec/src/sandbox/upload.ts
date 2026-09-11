@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { Transform } from "node:stream";
 import { pipeline } from "node:stream/promises";
-import type { Sandbox } from "@vercel/sandbox";
+import type { SandboxHandle } from "./provider.js";
 
 export const TARGET_EXCLUDES = [
   "--exclude=node_modules",
@@ -250,7 +250,7 @@ export async function makeTarball(
  * (e.g. for retries). Default is to unlink on success.
  */
 export async function uploadTarballToSandbox(
-  sandbox: Sandbox,
+  sandbox: SandboxHandle,
   remoteTarPath: string,
   localTarPath: string,
   onLog?: (msg: string) => void,
@@ -283,7 +283,7 @@ export async function uploadTarballToSandbox(
  * Extract a tarball on the sandbox into destDir. Creates destDir if missing.
  */
 export async function extractTarballOnSandbox(
-  sandbox: Sandbox,
+  sandbox: SandboxHandle,
   remoteTarPath: string,
   destDir: string,
   onLog?: (msg: string) => void,

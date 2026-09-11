@@ -8,6 +8,7 @@ import {
 import { resolveAgentType } from "../resolve-agent-type.js";
 import { resolveProjectId } from "../resolve-project-id.js";
 import { checkStatus, collect, launch, orchestrate } from "../sandbox/orchestrator.js";
+import type { SandboxProviderKind } from "../sandbox/provider.js";
 import type { SandboxConfig, SandboxSubcommand } from "../sandbox/types.js";
 
 const VALID_COMMANDS: SandboxSubcommand[] = ["process", "revalidate", "triage", "scan", "report"];
@@ -22,6 +23,7 @@ interface SandboxOpts {
   detach?: boolean;
   runId?: string;
   timeout?: number;
+  sandboxProvider?: string;
   args?: string[];
 }
 
@@ -71,6 +73,7 @@ function buildConfig(
   return {
     projectId,
     command: subcommand,
+    provider: (opts.sandboxProvider ?? "vercel") as SandboxProviderKind,
     sandboxCount: opts.sandboxes ?? 1,
     vcpus,
     // Extract key values from passthrough args for orchestrator/partitioner use

@@ -1,5 +1,5 @@
-import type { Sandbox } from "@vercel/sandbox";
 import type { BrokeredModelCredential } from "../auth/model-route.js";
+import type { SandboxHandle, SandboxProviderKind } from "./provider.js";
 
 /** Supported subcommands for sandbox execution. `enrich` is intentionally
  * absent — enrichment runs locally (git committer lookups + plugin ownership
@@ -8,6 +8,8 @@ export type SandboxSubcommand = "process" | "revalidate" | "triage" | "scan" | "
 
 export interface SandboxConfig {
   projectId: string;
+  /** Sandbox execution provider (defaults to Vercel). */
+  provider?: SandboxProviderKind;
   /** Which deepsec subcommand to run */
   command: SandboxSubcommand;
   /** Number of parallel sandboxes */
@@ -55,7 +57,7 @@ export interface SandboxConfig {
 }
 
 export interface SandboxInstance {
-  sandbox: Sandbox;
+  sandbox: SandboxHandle;
   index: number;
   sandboxId: string;
   status: "creating" | "setup" | "running" | "collecting" | "done" | "error";

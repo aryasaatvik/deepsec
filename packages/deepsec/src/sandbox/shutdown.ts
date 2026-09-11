@@ -1,4 +1,4 @@
-import type { Sandbox } from "@vercel/sandbox";
+import type { SandboxHandle } from "./provider.js";
 
 /**
  * Tracks sandboxes created by the orchestrator so we can stop them when the
@@ -6,16 +6,16 @@ import type { Sandbox } from "@vercel/sandbox";
  * parallel and we exit whether they succeed or not.
  */
 
-const live = new Set<Sandbox>();
+const live = new Set<SandboxHandle>();
 let installed = false;
 let shuttingDown = false;
 
-export function trackSandbox(sandbox: Sandbox): void {
+export function trackSandbox(sandbox: SandboxHandle): void {
   installHandlers();
   live.add(sandbox);
 }
 
-export function untrackSandbox(sandbox: Sandbox): void {
+export function untrackSandbox(sandbox: SandboxHandle): void {
   live.delete(sandbox);
 }
 
