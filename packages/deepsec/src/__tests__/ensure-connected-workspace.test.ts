@@ -1,10 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 import { ensureConnectedWorkspace } from "../auth/ensure-connected-workspace.js";
-import type { ResolvedModelRoute } from "../auth/model-route.js";
+import type { ModelRoute, ResolvedModelRoute } from "../auth/model-route.js";
 
-const route = { mode: "direct", provider: "openai", apiKeyEnv: "OPENAI_API_KEY" } as const;
+const directRoute = { mode: "direct", provider: "openai", apiKeyEnv: "OPENAI_API_KEY" } as const;
+const gatewayRoute = { mode: "gateway", provider: "vercel" } as const;
 
-function resolved(): ResolvedModelRoute {
+function resolved(route: ModelRoute = directRoute): ResolvedModelRoute {
   return {
     route,
     credentialEnv: "OPENAI_API_KEY",
@@ -19,52 +20,48 @@ function resolved(): ResolvedModelRoute {
 }
 
 describe("ensureConnectedWorkspace", () => {
-  it("verifies model access and returns an auditable linked checkpoint", async () => {
+  it("resolves and verifies a non-gateway route without linking the platform", async () => {
     const verifyModelRoute = vi.fn(async () => undefined);
+    const resolveRoute = vi.fn(async () => resolved());
+    const ensureLink = vi.fn();
     const result = await ensureConnectedWorkspace({
       workspaceDir: "/workspace",
       interactive: false,
-      modelRoute: route,
+      modelRoute: directRoute,
       agentTypes: ["codex"],
-      env: { VERCEL_TOKEN: "v", VERCEL_TEAM_ID: "team", VERCEL_PROJECT_ID: "project" },
+      env: { OPENAI_API_KEY: "secret" },
       dependencies: {
-        ensureLink: async () => ({
-          method: "access-token-triple",
-          project: { teamId: "team", projectId: "project" },
-          link: { orgId: "team", projectId: "project" },
-        }),
-        resolveRoute: async () => resolved(),
+        ensureLink,
+        resolveRoute,
         verifyModelRoute,
         now: () => new Date("2026-01-01T00:00:00Z"),
       },
     });
-    expect(result.modelRouteVerified).toBe(true);
-    expect(result.sandboxReady).toBe(true);
+    expect(ensureLink).not.toHaveBeenCalled();
+    expect(resolveRoute).toHaveBeenCalledOnce();
     expect(verifyModelRoute).toHaveBeenCalledOnce();
+    expect(result.project).toBeUndefined();
+    expect(result.platformAuth).toBeUndefined();
+    expect(result.sandboxReady).toBe(false);
+    expect(result.modelRouteVerified).toBe(true);
   });
 
-  it("short-circuits fresh matching verification while still resolving credentials", async () => {
+  it("short-circuits fresh matching verification for a non-gateway route", async () => {
     const verifyModelRoute = vi.fn(async () => undefined);
     const resolveRoute = vi.fn(async () => resolved());
     const previous = {
-      project: { teamId: "team", projectId: "project" },
-      route,
+      route: directRoute,
       agentTypes: ["codex"],
       modelVerifiedAt: "2026-01-01T00:00:00Z",
     };
     const result = await ensureConnectedWorkspace({
       workspaceDir: "/workspace",
       interactive: false,
-      modelRoute: route,
+      modelRoute: directRoute,
       agentTypes: ["codex"],
-      env: { VERCEL_TOKEN: "v", VERCEL_TEAM_ID: "team", VERCEL_PROJECT_ID: "project" },
+      env: { OPENAI_API_KEY: "secret" },
       previous,
       dependencies: {
-        ensureLink: async () => ({
-          method: "existing-link",
-          project: { teamId: "team", projectId: "project" },
-          link: { orgId: "team", projectId: "project" },
-        }),
         resolveRoute,
         verifyModelRoute,
         now: () => new Date("2026-01-01T01:00:00Z"),
@@ -72,7 +69,35 @@ describe("ensureConnectedWorkspace", () => {
     });
     expect(resolveRoute).toHaveBeenCalledOnce();
     expect(verifyModelRoute).not.toHaveBeenCalled();
+    expect(result.sandboxReady).toBe(false);
+  });
+
+  it("links the platform and returns a sandbox-ready checkpoint for a gateway route", async () => {
+    const verifyModelRoute = vi.fn(async () => undefined);
+    const resolveRoute = vi.fn(async () => resolved(gatewayRoute));
+    const ensureLink = vi.fn(async () => ({
+      method: "access-token-triple" as const,
+      project: { teamId: "team", projectId: "project" },
+      link: { orgId: "team", projectId: "project" },
+    }));
+    const result = await ensureConnectedWorkspace({
+      workspaceDir: "/workspace",
+      interactive: false,
+      modelRoute: gatewayRoute,
+      agentTypes: ["codex"],
+      env: { VERCEL_TOKEN: "v", VERCEL_TEAM_ID: "team", VERCEL_PROJECT_ID: "project" },
+      dependencies: {
+        ensureLink,
+        resolveRoute,
+        verifyModelRoute,
+        now: () => new Date("2026-01-01T00:00:00Z"),
+      },
+    });
+    expect(ensureLink).toHaveBeenCalledOnce();
+    expect(result.project).toEqual({ teamId: "team", projectId: "project" });
+    expect(result.platformAuth).toEqual({ method: "access-token-triple" });
     expect(result.sandboxReady).toBe(true);
+    expect(result.modelRouteVerified).toBe(true);
   });
 
   it("skips the platform link, credential resolution and verification for a local route", async () => {

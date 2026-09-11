@@ -1,4 +1,8 @@
-import { defaultCredentialHeaderScheme, type ModelRoute } from "../auth/model-route.js";
+import {
+  CODEX_LOCAL_ROUTE,
+  defaultCredentialHeaderScheme,
+  type ModelRoute,
+} from "../auth/model-route.js";
 
 export interface ModelRouteCliOptions {
   modelAuth?: "gateway" | "direct" | "custom" | "local";
@@ -10,7 +14,8 @@ export interface ModelRouteCliOptions {
 }
 
 export function modelRouteFromCli(options: ModelRouteCliOptions): ModelRoute {
-  const mode = options.modelAuth ?? "gateway";
+  if (options.modelAuth === undefined) return { ...CODEX_LOCAL_ROUTE };
+  const mode = options.modelAuth;
   if (mode !== "gateway" && mode !== "direct" && mode !== "custom" && mode !== "local") {
     throw new Error("--model-auth must be gateway, direct, custom, or local");
   }

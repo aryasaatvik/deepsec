@@ -1,2 +1,19 @@
 packages:
   - "packages/*"
+  # The website is kept in-tree but is not a workspace member: it is
+  # undeployed, and its Next/Turbopack build cannot resolve dependencies from
+  # the global virtual store. It installs and builds standalone via its own
+  # packages/website/pnpm-workspace.yaml.
+  - "!packages/website"
+
+allowBuilds:
+  esbuild: true
+  unrs-resolver: true
+  '@google/genai': false
+  protobufjs: false
+
+overrides:
+  "undici@>=7.0.0 <7.28.0": "^7.28.0"
+  "postcss@<8.5.10": "^8.5.10"
+  "brace-expansion@>=5.0.0 <5.0.6": "^5.0.6"
+  "esbuild@>=0.27.3 <0.28.1": "^0.28.1"

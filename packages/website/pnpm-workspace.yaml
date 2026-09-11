@@ -1,3 +1,11 @@
+# The website builds standalone (it is excluded from the repo workspace). Its
+# Next/Turbopack root spans the repo, so its dependencies must live inside the
+# repository — the global virtual store symlinks them to ~/Library/pnpm/store,
+# which Turbopack refuses to resolve. Note: a machine-level
+# PNPM_CONFIG_VIRTUAL_STORE_TYPE=global overrides this; run the standalone
+# install with PNPM_CONFIG_VIRTUAL_STORE_TYPE=project if the site must build.
+virtualStoreType: project
+
 overrides:
   postcss@<8.5.10: ^8.5.10
   esbuild@>=0.27.3 <0.28.1: ^0.28.1
@@ -8,10 +16,6 @@ allowBuilds:
   esbuild: false
   sharp: false
   unrs-resolver: false
-ignoredBuiltDependencies:
-  - esbuild
-  - sharp
-  - unrs-resolver
 minimumReleaseAgeExclude:
   - '@radix-ui/react-compose-refs@1.1.5'
   - '@radix-ui/react-slot@1.3.3'

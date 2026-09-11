@@ -7,6 +7,7 @@ import {
   inferModelHarness,
   resolveModelProfile,
 } from "../auth/model-picker.js";
+import { CODEX_LOCAL_ROUTE, OPENAI_CODEX_ROUTE, OPENCODE_GO_ROUTE } from "../auth/model-route.js";
 
 const results: BenchmarkResult[] = [
   {
@@ -76,10 +77,10 @@ describe("DeepSecBench model picker", () => {
 
     expect(choices.map((choice) => choice.label)).toEqual([
       "GPT-5.6 Sol",
-      "Claude Opus 5",
       "Kimi K3",
       "Grok 4.5",
       "DeepSeek V4 Flash",
+      "Claude Opus 5",
     ]);
     expect(choices[0]).toMatchObject({
       configuredModel: "gpt-5.6-sol",
@@ -87,8 +88,11 @@ describe("DeepSecBench model picker", () => {
       score: 35,
       relativePrice: 10,
     });
-    expect(choices[1]).toMatchObject({ thinkingLevel: "xhigh", relativePrice: 20 });
     expect(choices[4]).toMatchObject({
+      configuredModel: "claude-opus-5",
+      relativePrice: 20,
+    });
+    expect(choices[3]).toMatchObject({
       configuredModel: "deepseek/deepseek-v4-flash",
       relativePrice: 1,
     });
@@ -154,5 +158,24 @@ describe("DeepSecBench model picker", () => {
         fetchImpl,
       }),
     ).resolves.toMatchObject({ agent: "claude", model: "claude-opus-5" });
+  });
+
+  it("scopes recommendations to the selected provider", async () => {
+    const fetchImpl = vi.fn(async () => {
+      throw new Error("offline");
+    }) as unknown as typeof fetch;
+
+    await expect(
+      resolveModelProfile({ profile: "best", route: OPENCODE_GO_ROUTE, fetchImpl }),
+    ).resolves.toMatchObject({ agent: "pi", model: "opencode-go/kimi-k3" });
+    await expect(
+      resolveModelProfile({ profile: "budget", route: OPENCODE_GO_ROUTE, fetchImpl }),
+    ).resolves.toMatchObject({ agent: "pi", model: "opencode-go/deepseek-v4-flash" });
+    await expect(
+      resolveModelProfile({ profile: "best", route: OPENAI_CODEX_ROUTE, fetchImpl }),
+    ).resolves.toMatchObject({ agent: "pi", model: "openai-codex/gpt-5.6-sol" });
+    await expect(
+      resolveModelProfile({ profile: "budget", route: CODEX_LOCAL_ROUTE, fetchImpl }),
+    ).resolves.toMatchObject({ agent: "codex", model: "gpt-5.6-sol" });
   });
 });

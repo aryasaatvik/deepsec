@@ -8,7 +8,7 @@
   "engines": {
     "node": ">=22"
   },
-  "packageManager": "pnpm@8.15.9",
+  "packageManager": "pnpm@12.3.4",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/aryasaatvik/deepsec.git"
@@ -48,13 +48,5 @@
   },
   "dependencies": {
     "@aryasaatvik/deepsec": "workspace:*"
-  },
-  "pnpm": {
-    "overrides": {
-      "undici@>=7.0.0 <7.28.0": "^7.28.0",
-      "postcss@<8.5.10": "^8.5.10",
-      "brace-expansion@>=5.0.0 <5.0.6": "^5.0.6",
-      "esbuild@>=0.27.3 <0.28.1": "^0.28.1"
-    }
   }
 }

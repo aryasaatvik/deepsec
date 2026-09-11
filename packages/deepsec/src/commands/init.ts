@@ -7,7 +7,7 @@ import {
   promptForModelSelection,
   resolveModelProfile,
 } from "../auth/model-picker.js";
-import type { ModelRoute } from "../auth/model-route.js";
+import { CODEX_LOCAL_ROUTE, type ModelRoute } from "../auth/model-route.js";
 import { promptForModelRoute } from "../auth/model-route-prompt.js";
 import { ensureVercelLink, readWorkspaceLink } from "../auth/vercel-link.js";
 import { BOLD, CYAN, DIM, GREEN, RESET, YELLOW } from "../formatters.js";
@@ -219,7 +219,7 @@ export async function initCommand(opts: InitOpts) {
     recordInitialModelRoute(workspaceDir, modelRoute);
     if (!model && !resuming && !headless && process.stdin.isTTY && process.stdout.isTTY) {
       const choice = await promptForModelSelection({
-        route: modelRoute ?? { mode: "gateway", provider: "vercel" },
+        route: modelRoute ?? { ...CODEX_LOCAL_ROUTE },
         agent,
       });
       agent = choice.agent;
@@ -255,7 +255,7 @@ export async function initCommand(opts: InitOpts) {
       }
       const choice = await resolveModelProfile({
         profile: profile ?? "best",
-        route: modelRoute ?? { mode: "gateway", provider: "vercel" },
+        route: modelRoute ?? { ...CODEX_LOCAL_ROUTE },
         agent,
       });
       agent = choice.agent;
@@ -272,7 +272,7 @@ export async function initCommand(opts: InitOpts) {
     // setup was interrupted before login; the prompt above is first-run only.
     const linkRoute = modelRoute ?? persistedModelRoute(workspaceDir, registered.id);
     if (
-      linkRoute?.mode !== "local" &&
+      linkRoute?.mode === "gateway" &&
       !headless &&
       process.stdin.isTTY &&
       process.stdout.isTTY &&

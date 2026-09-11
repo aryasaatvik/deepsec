@@ -79,7 +79,7 @@ function fresh(at: string, now: Date, ttl: number): boolean {
 
 function canReuseModel(
   previous: ConnectionVerificationCheckpoint | undefined,
-  platform: PlatformLinkResult,
+  project: { teamId: string; projectId: string } | undefined,
   route: ModelRoute,
   agents: string[],
   now: Date,
@@ -87,8 +87,8 @@ function canReuseModel(
 ): boolean {
   return Boolean(
     previous &&
-      previous.project?.teamId === platform.project.teamId &&
-      previous.project?.projectId === platform.project.projectId &&
+      previous.project?.teamId === project?.teamId &&
+      previous.project?.projectId === project?.projectId &&
       sameRoute(previous.route, route) &&
       JSON.stringify(previous.agentTypes) === JSON.stringify(agents) &&
       fresh(previous.modelVerifiedAt, now, ttl),
@@ -127,42 +127,47 @@ export async function ensureConnectedWorkspace(
     };
   }
 
-  const platform = await (deps.ensureLink ?? ensureVercelLink)({
-    workspaceDir: options.workspaceDir,
-    interactive: options.interactive,
-    env,
-    teamId: options.teamId,
-    projectId: options.projectId,
-    allowCreate: options.allowCreate,
-    projectName: options.projectName,
-    runCli: options.runCli,
-    onLog: options.onLog,
-  });
+  const usesPlatform = options.modelRoute.mode === "gateway";
+  let platform: PlatformLinkResult | undefined;
 
-  if (options.interactive && env.VERCEL_OIDC_TOKEN) {
-    const refreshed = await (deps.refreshOidcToken ?? getVercelOidcToken)({
-      expirationBufferMs: 60 * 60 * 1000,
-      team: platform.project.teamId,
-      project: platform.project.projectId,
+  if (usesPlatform) {
+    platform = await (deps.ensureLink ?? ensureVercelLink)({
+      workspaceDir: options.workspaceDir,
+      interactive: options.interactive,
+      env,
+      teamId: options.teamId,
+      projectId: options.projectId,
+      allowCreate: options.allowCreate,
+      projectName: options.projectName,
+      runCli: options.runCli,
+      onLog: options.onLog,
     });
-    if (refreshed !== env.VERCEL_OIDC_TOKEN) {
-      env.VERCEL_OIDC_TOKEN = refreshed;
-      await updateEnvFile(join(options.workspaceDir, ".env.local"), {
-        VERCEL_OIDC_TOKEN: refreshed,
-      });
-    }
-  }
 
-  // Link success is not enough: the credential must still be available now.
-  assertSandboxCredential({ env });
+    if (options.interactive && env.VERCEL_OIDC_TOKEN) {
+      const refreshed = await (deps.refreshOidcToken ?? getVercelOidcToken)({
+        expirationBufferMs: 60 * 60 * 1000,
+        team: platform.project.teamId,
+        project: platform.project.projectId,
+      });
+      if (refreshed !== env.VERCEL_OIDC_TOKEN) {
+        env.VERCEL_OIDC_TOKEN = refreshed;
+        await updateEnvFile(join(options.workspaceDir, ".env.local"), {
+          VERCEL_OIDC_TOKEN: refreshed,
+        });
+      }
+    }
+
+    // Link success is not enough: the credential must still be available now.
+    assertSandboxCredential({ env });
+  }
 
   const resolvedRoutes: ResolvedModelRoute[] = [];
   for (const agentType of options.agentTypes) {
     const resolved = await (deps.resolveRoute ?? resolveModelRoute)(options.modelRoute, {
       agentType,
       env,
-      vercelTeam: platform.project.teamId,
-      vercelProject: platform.project.projectId,
+      vercelTeam: platform?.project.teamId,
+      vercelProject: platform?.project.projectId,
     });
     resolvedRoutes.push(resolved);
     applyResolvedModelRoute(resolved, env);
@@ -170,7 +175,7 @@ export async function ensureConnectedWorkspace(
 
   const reuseModel = canReuseModel(
     options.previous,
-    platform,
+    platform?.project,
     resolvedRoutes[0].route,
     options.agentTypes,
     now,
@@ -185,19 +190,19 @@ export async function ensureConnectedWorkspace(
   const modelVerifiedAt = reuseModel ? options.previous!.modelVerifiedAt : now.toISOString();
   const normalizedRoute = resolvedRoutes[0].route;
   const verification: ConnectionVerificationCheckpoint = {
-    project: platform.project,
+    project: platform?.project,
     route: normalizedRoute,
     agentTypes: [...options.agentTypes],
     modelVerifiedAt,
   };
 
   return {
-    platformAuth: { method: platform.method },
-    project: platform.project,
+    platformAuth: platform ? { method: platform.method } : undefined,
+    project: platform?.project,
     modelAuth: normalizedRoute,
     agentTypes: [...options.agentTypes],
     modelRouteVerified: true,
-    sandboxReady: true,
+    sandboxReady: Boolean(platform),
     verification,
   };
 }

@@ -92,10 +92,10 @@ const LABELS: Record<string, string> = {
 
 const PREFERRED_MODELS = [
   "openai/gpt-5.6-sol",
-  "anthropic/claude-opus-5",
   "moonshotai/kimi-k3",
   "xai/grok-4.5",
   "deepseek/deepseek-v4-flash",
+  "anthropic/claude-opus-5",
 ] as const;
 
 function isBenchmarkResult(value: unknown): value is BenchmarkResult {
@@ -144,19 +144,31 @@ function thinkingLevel(reasoning: string): string | undefined {
   return reasoning === "max" ? "xhigh" : reasoning;
 }
 
-export function buildRecommendedModelChoices(results: BenchmarkResult[]): RecommendedModelChoice[] {
-  const selected = PREFERRED_MODELS.map(
-    (modelId) => strongest(results, modelId) ?? strongest(FALLBACK_RESULTS, modelId),
-  ).filter((result): result is BenchmarkResult => result !== undefined);
-  const cheapest = Math.min(...selected.map((result) => result.cost));
-  return selected.map((result) => ({
-    ...result,
-    label: LABELS[result.modelId] ?? result.model,
-    agent: result.harness,
-    configuredModel: configuredModel(result),
-    thinkingLevel: thinkingLevel(result.reasoning),
-    relativePrice: result.cost / cheapest,
-  }));
+export function buildRecommendedModelChoices(
+  results: BenchmarkResult[],
+  route?: ModelRoute,
+): RecommendedModelChoice[] {
+  const cheapest = Math.min(
+    ...PREFERRED_MODELS.map(
+      (modelId) => (strongest(results, modelId) ?? strongest(FALLBACK_RESULTS, modelId))?.cost ?? 0,
+    ),
+  );
+  return PREFERRED_MODELS.flatMap((modelId) => {
+    const result = strongest(results, modelId) ?? strongest(FALLBACK_RESULTS, modelId);
+    if (!result) return [];
+    const choice = routeChoice(route, result);
+    if (!choice) return [];
+    return [
+      {
+        ...result,
+        label: LABELS[result.modelId] ?? result.model,
+        agent: choice.agent,
+        configuredModel: choice.configuredModel,
+        thinkingLevel: thinkingLevel(result.reasoning),
+        relativePrice: result.cost / cheapest,
+      },
+    ];
+  });
 }
 
 function canonicalHarness(value: string | undefined): ModelHarness | undefined {
@@ -168,7 +180,39 @@ function canonicalHarness(value: string | undefined): ModelHarness | undefined {
 function compatibleHarness(route: ModelRoute, requested?: string): ModelHarness | undefined {
   if (route.mode === "direct") return route.provider === "anthropic" ? "claude" : "codex";
   if (route.mode === "custom") return "pi";
+  if (route.mode === "local") {
+    // A pinned subscription provider constrains the harness; the generic
+    // "local" route can use any machine-wide login.
+    if (route.provider === "openai-codex") return "pi";
+    if (route.provider === "codex") return "codex";
+    if (route.provider === "claude") return "claude";
+    return canonicalHarness(requested);
+  }
   return canonicalHarness(requested);
+}
+
+/**
+ * Map a benchmark result onto the selected route. Custom routes only host
+ * models under their own provider prefix; the OpenAI Codex subscription runs
+ * on Pi and only serves openai-codex models. Returns undefined when the route
+ * cannot run a given benchmark model.
+ */
+function routeChoice(
+  route: ModelRoute | undefined,
+  result: BenchmarkResult,
+): { agent: ModelHarness; configuredModel: string } | undefined {
+  const basename = result.modelId.split("/").pop() ?? result.modelId;
+  if (route?.mode === "custom") {
+    return result.harness === "pi"
+      ? { agent: "pi", configuredModel: `${route.provider}/${basename}` }
+      : undefined;
+  }
+  if (route?.mode === "local" && route.provider === "openai-codex") {
+    return result.harness === "codex"
+      ? { agent: "pi", configuredModel: `openai-codex/${basename}` }
+      : undefined;
+  }
+  return { agent: result.harness, configuredModel: configuredModel(result) };
 }
 
 export function parseModelProfile(value: string | undefined): ModelProfile | undefined {
@@ -197,7 +241,7 @@ export async function resolveModelProfile(options: {
 > {
   const benchmark = await fetchBenchmarkResults(options.fetchImpl);
   const requiredHarness = compatibleHarness(options.route, options.agent);
-  const choices = buildRecommendedModelChoices(benchmark.results).filter(
+  const choices = buildRecommendedModelChoices(benchmark.results, options.route).filter(
     (choice) => !requiredHarness || choice.agent === requiredHarness,
   );
   const byScore = [...choices].sort((left, right) => right.score - left.score);
@@ -260,7 +304,7 @@ export async function promptForModelSelection(options: {
   console.log(`  ${DIM}Loading current DeepSecBench recommendations…${RESET}`);
   const benchmark = await fetchBenchmarkResults(options.fetchImpl);
   const requiredHarness = compatibleHarness(options.route, options.agent);
-  const recommendations = buildRecommendedModelChoices(benchmark.results);
+  const recommendations = buildRecommendedModelChoices(benchmark.results, options.route);
   const choices = recommendations.filter(
     (choice) => !requiredHarness || choice.agent === requiredHarness,
   );

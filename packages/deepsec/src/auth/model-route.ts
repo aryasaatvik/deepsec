@@ -15,6 +15,27 @@ export interface ModelRoute {
   authScheme?: CredentialHeaderScheme;
 }
 
+/** Default route: the machine-wide Codex login (no Vercel, no API key). */
+export const CODEX_LOCAL_ROUTE: ModelRoute = {
+  mode: "local",
+  provider: "codex",
+};
+
+/** Pi-first default route: OpenCode Go via its OpenAI-compatible endpoint. */
+export const OPENCODE_GO_ROUTE: ModelRoute = {
+  mode: "custom",
+  provider: "opencode-go",
+  apiKeyEnv: "OPENCODE_API_KEY",
+  baseUrl: "https://opencode.ai/zen/go/v1",
+  credentialHeader: { name: "authorization", scheme: "bearer" },
+};
+
+/** Pi subscription route: OpenAI Codex via the machine-wide `pi` login. */
+export const OPENAI_CODEX_ROUTE: ModelRoute = {
+  mode: "local",
+  provider: "openai-codex",
+};
+
 export interface BrokeredModelCredential {
   host: string;
   placeholderEnv: string;
