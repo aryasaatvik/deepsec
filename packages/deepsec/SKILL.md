@@ -32,7 +32,7 @@ clone, `<deepsec-clone>/docs/`:
 
 ## How to answer common questions
 
-- **"How do I install/init deepsec?"** → `getting-started.md`; default to `npx deepsec init`, not a manual install/scan recipe.
+- **"How do I install/init deepsec?"** → `getting-started.md`; default to `npx @aryasaatvik/deepsec init`, not a manual install/scan recipe.
 - **"Setup stopped; how do I resume?"** → `getting-started.md` + `data-layout.md`; re-run init or `deepsec setup`.
 - **"How do I run another scan?"** → `getting-started.md` after noting the first scan/process already ran during setup.
 - **"What goes in `deepsec.config.ts`?"** → `configuration.md` + `samples/webapp/deepsec.config.ts`.
@@ -53,13 +53,13 @@ When you are asked to initialize Deepsec from a non-TTY agent session, first
 inspect the read-only plan:
 
 ```bash
-npx deepsec init --plan --output json
+npx @aryasaatvik/deepsec init --plan --output json
 ```
 
 Then run the requested policy, normally:
 
 ```bash
-npx deepsec init --yes --model-profile value --output jsonl
+npx @aryasaatvik/deepsec init --yes --model-profile value --output jsonl
 ```
 
 Parse every output line as JSON. On `needs_input`, show the supplied message

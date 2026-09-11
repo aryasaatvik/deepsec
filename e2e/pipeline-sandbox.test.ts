@@ -278,7 +278,7 @@ describe.skipIf(!SHOULD_RUN)("pipeline e2e — live sandbox", () => {
         const tarballName = path.basename(tarballPath);
         const pkgPath = path.join(workspaceDir, "package.json");
         const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
-        pkg.dependencies.deepsec = `file:./${tarballName}`;
+        pkg.dependencies["@aryasaatvik/deepsec"] = `file:./${tarballName}`;
         fs.writeFileSync(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`);
 
         // 3. Drop the stub plugin + register it. Same shape as

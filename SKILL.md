@@ -79,14 +79,14 @@ or launch an interactive login yourself.
 
 Run from inside `.deepsec/` (the config loader only finds
 `deepsec.config.ts` in the current directory or its ancestors; after step 3,
-`npx deepsec` resolves to the copy installed there):
+`npx @aryasaatvik/deepsec` resolves to the copy installed there):
 
 | Scope | Command |
 | --- | --- |
-| Uncommitted changes | `cd .deepsec && npx deepsec process --diff-working` |
-| Diff to main | `cd .deepsec && npx deepsec process --diff origin/main` |
-| Entire codebase, right after step 3 | `cd .deepsec && npx deepsec process` (the final scan from setup already produced the candidate set) |
-| Entire codebase, previously onboarded | `cd .deepsec && npx deepsec scan && npx deepsec process` |
+| Uncommitted changes | `cd .deepsec && npx @aryasaatvik/deepsec process --diff-working` |
+| Diff to main | `cd .deepsec && npx @aryasaatvik/deepsec process --diff origin/main` |
+| Entire codebase, right after step 3 | `cd .deepsec && npx @aryasaatvik/deepsec process` (the final scan from setup already produced the candidate set) |
+| Entire codebase, previously onboarded | `cd .deepsec && npx @aryasaatvik/deepsec scan && npx @aryasaatvik/deepsec process` |
 
 ## 5. Interpret results
 
@@ -94,8 +94,8 @@ Run from inside `.deepsec/` (the config loader only finds
   least one net-new finding (not an error), anything else = runtime error.
   Pre-existing findings on touched files are excluded from the gate.
 - Summarize any findings for the user, then offer follow-ups (all from
-  inside `.deepsec/`): `npx deepsec report`, `npx deepsec revalidate`, and
-  `npx deepsec export --format md-dir --out ./findings`.
+  inside `.deepsec/`): `npx @aryasaatvik/deepsec report`, `npx @aryasaatvik/deepsec revalidate`, and
+  `npx @aryasaatvik/deepsec export --format md-dir --out ./findings`.
 
 ## Going deeper
 

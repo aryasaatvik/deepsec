@@ -38,7 +38,7 @@ export function setupDocumentation(): SetupDocumentation | undefined {
     models: path.join(docsDirectory, "models.md"),
     configuration: path.join(docsDirectory, "configuration.md"),
     faq: path.join(docsDirectory, "faq.md"),
-    note: "Read SKILL.md first, then the relevant file in dist/docs. These workspace paths become available after install; if they are missing, run npx deepsec init --help first.",
+    note: "Read SKILL.md first, then the relevant file in dist/docs. These workspace paths become available after install; if they are missing, run npx @aryasaatvik/deepsec init --help first.",
   };
 }
 

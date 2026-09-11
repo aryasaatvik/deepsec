@@ -40,7 +40,7 @@ function getDeepsecPackageRoot(): string {
  *
  * Used by:
  *   - cli.ts to populate `commander.version()`.
- *   - init.ts to pin the scaffolded `dependencies.deepsec` to whatever
+ *   - init.ts to pin the scaffolded `dependencies["@aryasaatvik/deepsec"]` to whatever
  *     this CLI was published as, so a fresh `pnpm install` in the
  *     scaffolded `.deepsec/` actually resolves to a real version on npm.
  */

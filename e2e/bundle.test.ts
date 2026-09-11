@@ -322,12 +322,12 @@ export default defineConfig({
       const pkg = JSON.parse(fs.readFileSync(path.join(workspace, "package.json"), "utf-8"));
       expect(pkg.name).toBe("audits");
       const localDependency = pathToFileURL(path.join(ROOT, "packages/deepsec")).href;
-      expect(pkg.dependencies.deepsec).toBe(localDependency);
+      expect(pkg.dependencies["@aryasaatvik/deepsec"]).toBe(localDependency);
 
       // A local bundle must also repair a workspace produced by an earlier
       // run that accidentally pointed at the registry package. This is the
       // exact recovery path after install succeeded but config loading failed.
-      pkg.dependencies.deepsec = "^2.2.9";
+      pkg.dependencies["@aryasaatvik/deepsec"] = "^2.2.9";
       fs.writeFileSync(path.join(workspace, "package.json"), `${JSON.stringify(pkg, null, 2)}\n`);
       const resumed = runBundle(["init", workspace, targetRoot, "--scaffold-only"]);
       expect(resumed.status, `stdout: ${resumed.stdout}\nstderr: ${resumed.stderr}`).toBe(0);
@@ -335,7 +335,7 @@ export default defineConfig({
       const repairedPkg = JSON.parse(
         fs.readFileSync(path.join(workspace, "package.json"), "utf-8"),
       );
-      expect(repairedPkg.dependencies.deepsec).toBe(localDependency);
+      expect(repairedPkg.dependencies["@aryasaatvik/deepsec"]).toBe(localDependency);
       // packageManager: pinned to pnpm so a parent repo's `packageManager`
       // (e.g. yarn) doesn't make pnpm refuse to install in `.deepsec/`.
       expect(pkg.packageManager).toMatch(/^pnpm@\d+\.\d+\.\d+$/);

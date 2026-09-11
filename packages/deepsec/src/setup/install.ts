@@ -62,7 +62,7 @@ export function probeWorkspaceInstall(workspaceDir: string): {
       if (
         !fs.existsSync(path.join(workspaceDir, "node_modules", "@aryasaatvik", "deepsec", relative))
       ) {
-        return { ok: false, reason: `deepsec/${relative} is missing` };
+        return { ok: false, reason: `@aryasaatvik/deepsec/${relative} is missing` };
       }
     }
     return { ok: true, version: String(pkg.version ?? "unknown") };

@@ -18,7 +18,7 @@ analyzed and only investigating the rest.
 From the root of the repository you want to scan:
 
 ```bash
-npx deepsec init
+npx @aryasaatvik/deepsec init
 ```
 
 The command guides you through everything. It asks you to pick an AI model
@@ -29,11 +29,11 @@ review. The only thing it adds to your repository is a `.deepsec/` folder
 where all of its state and findings live.
 
 If the run is interrupted for any reason — Ctrl-C, lost connection, a
-spending limit — run `npx deepsec init` again and it continues where it
+spending limit — run `npx @aryasaatvik/deepsec init` again and it continues where it
 left off. To cap what a run may spend or how long it may take:
 
 ```bash
-npx deepsec init --max-cost-usd 100 --max-duration 2h
+npx @aryasaatvik/deepsec init --max-cost-usd 100 --max-duration 2h
 ```
 
 When the scan finishes, get a readable report:

@@ -8,7 +8,7 @@ description: "Review setup-generated declarative matchers and add richer project
 Normal initialization already asks whether custom matchers are needed:
 
 ```bash
-npx deepsec init
+npx @aryasaatvik/deepsec init
 ```
 
 The setup agent inventories repository ingress surfaces, runs the built-in

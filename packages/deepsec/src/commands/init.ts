@@ -435,7 +435,7 @@ function packageJson(name: string, deepsecDependency: string): string {
       // `.deepsec/` refuse to run. Setting it here stops the walk at the
       // workspace root.
       packageManager: detectPackageManager(),
-      dependencies: { deepsec: deepsecDependency },
+      dependencies: { "@aryasaatvik/deepsec": deepsecDependency },
     },
     null,
     2,
@@ -451,8 +451,8 @@ function reconcileLocalDeepsecDependency(workspaceDir: string, dependency: strin
   if (!dependency.startsWith("file:")) return;
   const pkgPath = path.join(workspaceDir, "package.json");
   const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
-  if (pkg.dependencies?.deepsec === dependency) return;
-  pkg.dependencies = { ...(pkg.dependencies ?? {}), deepsec: dependency };
+  if (pkg.dependencies?.["@aryasaatvik/deepsec"] === dependency) return;
+  pkg.dependencies = { ...(pkg.dependencies ?? {}), "@aryasaatvik/deepsec": dependency };
   fs.writeFileSync(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`);
 }
 
@@ -522,7 +522,7 @@ Currently configured project: \`${id}\` (target: \`${targetRel}\`).
 
 ## Setup
 
-\`npx deepsec init\` created this workspace and normally completes its
+\`npx @aryasaatvik/deepsec init\` created this workspace and normally completes its
 install, exact Vercel project link, Sandbox/model probes, threat model,
 coverage-guided scans, custom matchers, and first AI processing run.
 
