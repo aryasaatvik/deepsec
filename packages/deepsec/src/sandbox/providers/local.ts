@@ -114,9 +114,10 @@ class LocalSandboxHandle implements SandboxHandle {
     this.children.add(child);
     child.on("exit", () => this.children.delete(child));
     const command = new LocalCommand(child);
-    // Match Vercel's non-detached runCommand, which resolves after the process
-    // exits; callers inspect exitCode immediately on the resolved command.
-    await command.wait();
+    // Match Vercel: non-detached runCommand resolves after the process exits
+    // (callers inspect exitCode immediately); detached returns at once so the
+    // launcher can record run state and report the run id.
+    if (input.detached !== true) await command.wait();
     return command;
   }
 

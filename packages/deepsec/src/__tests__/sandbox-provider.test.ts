@@ -50,4 +50,13 @@ describe("createSandboxProvider", () => {
     await expect(provider.get("nope")).rejects.toThrow(/reattach/);
     await sandbox.stop();
   });
+
+  it("returns a detached command immediately and still completes", async () => {
+    const provider = await createSandboxProvider("local");
+    const sandbox = await provider.create({});
+    const command = await sandbox.runCommand({ cmd: "sleep", args: ["0.3"], detached: true });
+    expect(command.exitCode).toBeNull();
+    await expect(command.wait()).resolves.toMatchObject({ exitCode: 0 });
+    await sandbox.stop();
+  });
 });
